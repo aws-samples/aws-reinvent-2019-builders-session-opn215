@@ -1,8 +1,20 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-metadata: 
+Parameters:
 
-Parameters: {}
+  VPC1CidrBlock:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: Enter a CIDR range for the VPC.
+
+  SN1CidrBlock:
+    Type: String
+    Default: 10.0.0.1/24
+    Description: Enter a CIDR range for the VPC.
+  
+  LinuxImageId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
 
 Mappings: {}
 
@@ -14,25 +26,37 @@ Resources:
 
   VPC1:
     Type: 'AWS::EC2::VPC'
-    Properties: {}
-    Metadata: 
+    Properties: 
+      CidrBlock: !Ref VPC1CidrBlock
   
   SN1:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref VPC1
-    Metadata: 
+      CidrBlock: !Ref SN1CidrBlock
 
   SnortSensor:
     Type: 'AWS::EC2::Instance'
     Properties:
       NetworkInterfaces:
         - SubnetId: !Ref SN1
-    Metadata: 
+          DeviceIndex: 0
+      InstanceType: t2.medium
+      ImageId: !Ref LinuxImageId
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum update -y
   
   TrafficGenerator:
     Type: 'AWS::EC2::Instance'
     Properties:
       NetworkInterfaces:
         - SubnetId: !Ref SN1
-    Metadata: 
+          DeviceIndex: 0
+      InstanceType: t2.medium
+      ImageId: !Ref LinuxImageId
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum update -y
