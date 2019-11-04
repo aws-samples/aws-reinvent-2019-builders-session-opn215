@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-metadata: {}
+metadata: 
 
 Parameters: {}
 
@@ -15,24 +15,24 @@ Resources:
   VPC1:
     Type: 'AWS::EC2::VPC'
     Properties: {}
-    Metadata: {}
+    Metadata: 
   
   SN1:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref VPC1
-    Metadata: {}
+    Metadata: 
 
   SnortSensor:
     Type: 'AWS::EC2::Instance'
     Properties:
       NetworkInterfaces:
         - SubnetId: !Ref SN1
-    Metadata: {}
+    Metadata: 
   
   TrafficGenerator:
     Type: 'AWS::EC2::Instance'
     Properties:
       NetworkInterfaces:
         - SubnetId: !Ref SN1
-    Metadata: {}
+    Metadata: 
