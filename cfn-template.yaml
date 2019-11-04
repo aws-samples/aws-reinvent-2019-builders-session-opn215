@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+metadata: {}
+
+Parameters: {}
+
+Mappings: {}
+
+Conditions: {}
+
+Outputs: {}
+
+Resources:
+
+  VPC1:
+    Type: 'AWS::EC2::VPC'
+    Properties: {}
+    Metadata: {}
+  
+  SN1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC1
+    Metadata: {}
+
+  SnortSensor:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      NetworkInterfaces:
+        - SubnetId: !Ref SN1
+    Metadata: {}
+  
+  TrafficGenerator:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      NetworkInterfaces:
+        - SubnetId: !Ref SN1
+    Metadata: {}
