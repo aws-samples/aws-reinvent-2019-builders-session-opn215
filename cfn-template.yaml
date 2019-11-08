@@ -60,3 +60,19 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
           yum update -y
+
+  SnortPacketData:
+    Type: 'AWS::S3::Bucket'
+    Properties: {}
+
+  SnortAlertData:
+    Type: 'AWS::S3::Bucket'
+    Properties: {}
+
+  SnortPacketStream:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties: {}
+
+  SnortAlertStream:
+    Type: AWS::KinesisFirehose::DeliveryStream
+    Properties: {}
