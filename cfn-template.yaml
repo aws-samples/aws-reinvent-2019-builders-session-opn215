@@ -15,6 +15,16 @@ Parameters:
   LinuxImageId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  
+  FireHoseS3BufferSize:
+    Type: Number
+    Default: 5
+    Description: Enter the buffer size in MB for the Kinesis Firehose destination bucket.
+
+  FireHoseS3BufferTime:
+    Type: Number
+    Default: 300
+    Description: Enter the buffer time in seconds for the Kinesis Firehose destination bucket.
 
 Mappings: {}
 
@@ -71,8 +81,71 @@ Resources:
 
   SnortPacketStream:
     Type: AWS::KinesisFirehose::DeliveryStream
-    Properties: {}
+    Properties: 
+      S3DestinationConfiguration: 
+        BucketARN: !GetAtt SnortPacketData.Arn
+        BufferingHints: 
+          IntervalInSeconds: !Ref FireHoseS3BufferTime
+          SizeInMBs: !Ref FireHoseS3BufferSize
+        CompressionFormat: GZIP
+        RoleARN: !GetAtt KinesisIAMRole.Arn
 
   SnortAlertStream:
     Type: AWS::KinesisFirehose::DeliveryStream
-    Properties: {}
+    Properties: 
+      S3DestinationConfiguration: 
+        BucketARN: !GetAtt SnortAlertData.Arn
+        BufferingHints: 
+          IntervalInSeconds: !Ref FireHoseS3BufferTime
+          SizeInMBs: !Ref FireHoseS3BufferSize
+        CompressionFormat: GZIP
+        RoleARN: !GetAtt KinesisIAMRole.Arn
+  
+  KinesisIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service: firehose.amazonaws.com
+            Action: 'sts:AssumeRole'
+  
+  KinesisIAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: aws-snort-demo-kinesis-policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:AbortMultipartUpload'
+              - 's3:GetBucketLocation'
+              - 's3:GetObject'
+              - 's3:ListBucket'
+              - 's3:ListBucketMultipartUploads'
+              - 's3:PutObject'
+            Resource:
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SnortPacketData
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SnortPacketData
+                  - '*'
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SnortAlertData
+              - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref SnortAlertData
+                  - '*'
+      Roles:
+        - !Ref KinesisIAMRole
