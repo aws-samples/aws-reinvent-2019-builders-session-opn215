@@ -9,7 +9,12 @@ Parameters:
 
   SN1CidrBlock:
     Type: String
-    Default: 10.0.0.1/24
+    Default: 10.0.1.0/24
+    Description: Enter a CIDR range for the VPC.
+
+  SN2CidrBlock:
+    Type: String
+    Default: 10.0.2.0/24
     Description: Enter a CIDR range for the VPC.
   
   LinuxImageId:
@@ -38,6 +43,8 @@ Resources:
     Type: 'AWS::EC2::VPC'
     Properties: 
       CidrBlock: !Ref VPC1CidrBlock
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
   
   SN1:
     Type: 'AWS::EC2::Subnet'
@@ -45,18 +52,86 @@ Resources:
       VpcId: !Ref VPC1
       CidrBlock: !Ref SN1CidrBlock
 
+  SN2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC1
+      CidrBlock: !Ref SN2CidrBlock
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties: {}
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC1
+  
+  EIP:
+   DependsOn: InternetGatewayAttachment
+   Type: AWS::EC2::EIP
+   Properties:
+      Domain: vpc
+  
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIP.AllocationId
+      SubnetId: !Ref SN2
+  
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC1
+  
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref SN2
+  
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC1
+  
+  DefaultPrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+  
+  PrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref SN1
+
   SnortSensor:
     Type: 'AWS::EC2::Instance'
     Properties:
       NetworkInterfaces:
         - SubnetId: !Ref SN1
           DeviceIndex: 0
+          GroupSet: 
+            - !Ref SG1
       InstanceType: t2.medium
       ImageId: !Ref LinuxImageId
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
           yum update -y
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           start amazon-ssm-agent
       Tags: 
         - 
@@ -65,14 +140,19 @@ Resources:
         - 
           Key: "SSMType"
           Value: "SnortSensor"
+        - 
+          Key: "SSMManaged"
+          Value: "True"
       IamInstanceProfile: !Ref SSMInstanceProfile
-  
+
   TrafficGenerator:
     Type: 'AWS::EC2::Instance'
     Properties:
       NetworkInterfaces:
         - SubnetId: !Ref SN1
           DeviceIndex: 0
+          GroupSet: 
+            - !Ref SG1
       InstanceType: t2.medium
       ImageId: !Ref LinuxImageId
       UserData:
@@ -87,6 +167,9 @@ Resources:
         - 
           Key: "SSMType"
           Value: "TrafficGenerator"
+        - 
+          Key: "SSMManaged"
+          Value: "True"
       IamInstanceProfile: !Ref SSMInstanceProfile
 
   SnortPacketData:
@@ -180,12 +263,90 @@ Resources:
     Properties: 
       AssumeRolePolicyDocument:
         Version: 2012-10-17
-        Statement:
-          -
+        Statement: 
+          - 
             Effect: Allow
             Principal:
               Service: ec2.amazonaws.com
             Action: 'sts:AssumeRole'
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+
+  SSMEndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SG1
+      ServiceName: 
+        !Join
+        - ''
+        - - 'com.amazonaws.'
+          - !Ref 'AWS::Region'
+          - '.ssm'
+      SubnetIds: 
+        - !Ref SN1
+      VpcId: !Ref VPC1
+      VpcEndpointType: Interface
+  
+  SSMMessagesEndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SG1
+      ServiceName: 
+        !Join
+          - ''
+          - - 'com.amazonaws.'
+            - !Ref 'AWS::Region'
+            - '.ssmmessages'
+      SubnetIds: 
+        - !Ref SN1
+      VpcId: !Ref VPC1
+      VpcEndpointType: Interface
+
+  EC2MessagesEndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SG1
+      ServiceName: 
+        !Join
+          - ''
+          - - 'com.amazonaws.'
+            - !Ref 'AWS::Region'
+            - '.ec2messages'
+      SubnetIds: 
+        - !Ref SN1
+      VpcId: !Ref VPC1
+      VpcEndpointType: Interface
+
+  EC2EndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SG1
+      ServiceName: 
+        !Join
+          - ''
+          - - 'com.amazonaws.'
+            - !Ref 'AWS::Region'
+            - '.ec2'
+      SubnetIds: 
+        - !Ref SN1
+      VpcId: !Ref VPC1
+      VpcEndpointType: Interface
+
+  SG1:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all
+      VpcId: !Ref VPC1
+      SecurityGroupIngress:
+      - IpProtocol: -1
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
