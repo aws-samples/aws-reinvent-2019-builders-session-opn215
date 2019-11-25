@@ -41,5 +41,40 @@ This project builds a simple infrastructure for installing Snort and processing 
 6. In the * configure stack options * page, accept the defaults and click on the * next * buttont to continue.  
 7. In the * review aws-snort-demo * page, scroll to the bottom of the page and make sure that the tickbox * I acknowledge that AWS CloudFormation might create IAM resources with custom names * is ticked.  Click on the * create stack * button continue.
 
-## Install Snort Sensor packages
+## Install Snort and Kinesis Firehose agent
+1. In the AWS Console, optn the * System Manager * console.
+2. Select * Run Command * in the menu in the left hand window.
+3. Click on the * Run Command * button in the right hand window.
+4. Type * AWS-RunShellScript * in the search bar and press the * return * key.
+5. Click on the * radio button * for the * AWS-RunShellScript * document. 
+6. Scroll down to the * Command parameters * section.  Copy and paste the contents of the * snort-sensor.sh * into this field.
+```
+#!/bin/bash -xe
+sudo yum update -y
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
+sudo yum install -y https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
+sudo yum install -y https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
+sudo wget -nv https://www.snort.org/downloads/community/community-rules.tar.gz -O /var/tmp/community-rules.tar.gz
+sudo gunzip /var/tmp/community-rules.tar.gz
+sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
+sudo cp /var/tmp/community-rules/* /etc/snort/rules/
+sudo chmod 5775 /var/log/snort
+sudo chkconfig snortd on
+sudo chkconfig aws-kinesis-agent on
+```
+7. Scroll down to the * targets * section.  In the specify instance tags fields, insert the following values, then click  on the * Add * button.
+Field  | Value
+------------- | -------------
+Key  | SSMType
+Value  | SnortSensor
+8. In the * output option * section, ensure that the tickbox * Enable writing to S3 bucket * is ticked.  Select the radio button * choose a bucket name from the list *.  Click on the dropdown list and select the bucket with the name beginning with * aws-snort-demo-ssmloggingbucket *. 
+9. Click on the * run * button.
+
+## Open a shell session to the Snort Sensor
+1. In the AWS Console, optn the * System Manager * console.
+2. Select * Session Manager * in the menu in the left hand window.
+3. Click on the * Start Session * button in the right hand window.
+4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
+5. Click on the * start session * button.
 
