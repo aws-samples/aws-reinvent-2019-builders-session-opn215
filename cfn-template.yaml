@@ -340,3 +340,7 @@ Resources:
         FromPort: -1
         ToPort: -1
         CidrIp: 0.0.0.0/0
+  
+  SSMLoggingBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties: {}
