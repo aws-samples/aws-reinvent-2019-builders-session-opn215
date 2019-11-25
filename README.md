@@ -1,14 +1,33 @@
 # AWS Snort Demo
 
 ## Contents
-* README.md
-* cfn-template.yaml
-* scripts\snort-sensor.sh
-* scripts\traffic-generator.sh
-* etc\aws-kinesis\agent.json
-* etc\rc.d\init.d\snortd
-* etc\snort\snort.conf
-* etc\sysconfig\snort
+README.md
+cfn-template.yaml
+scripts\snort-sensor.sh
+scripts\traffic-generator.sh
+etc\aws-kinesis\agent.json
+etc\rc.d\init.d\snortd
+etc\snort\snort.conf
+etc\sysconfig\snort
+
+```bash
+.
+â”œâ”€â”€ README.md                         <-- This instructions file
+â”œâ”€â”€ cfn-template.yaml                 <-- Cloudformtation template for lab environment
+â”œâ”€â”€ scripts                           <-- Directory for linux build scripts
+â”‚   â”œâ”€â”€ snort-sensor.sh               <-- Installation script for snort packages
+â”‚   â”œâ”€â”€ traffic-generator.sh          <-- Instalation script for traffic generator
+â””â”€â”€ etc                               <-- Directory for linux init and conf scripts
+â”‚   â”œâ”€â”€ aws-kinesis                   <-- Directory for aws-kinesis configuration
+â”‚ â”‚ â”œâ”€â”€ agent.json                    <-- Kinesis firehose agent configuration file
+â”‚   â”œâ”€â”€ rc.d                        <-- Directory for init scripts
+â”‚ â”‚ â”œâ”€â”€ init.d                      <-- Directory for init scripts
+â”‚ â”‚ â”‚ â”œâ”€â”€ snortd                    <-- Snort init script
+â”‚   â”œâ”€â”€ snort                       <-- Directory for snort configuration
+â”‚  â”‚  â”œâ”€â”€ snort.conf                <-- Snort configuration file
+â”‚   â”œâ”€â”€ sysconfig                   <-- Directory for init scripts
+â”‚  â”‚  â”œâ”€â”€ snort                     <-- Snort init script
+```
 
 ## Description
 This project builds a simple infrastructure for installing Snort and processing the log files with Kinesis Firehose.
