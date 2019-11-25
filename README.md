@@ -72,15 +72,34 @@ Value  | SnortSensor
 9. Click on the * run * button.
 
 ## Open a shell session to the Snort Sensor
-1. In the AWS Console, optn the * System Manager * console.
+1. In the AWS Console, open the * System Manager * console.
 2. Select * Session Manager * in the menu in the left hand window.
 3. Click on the * Start Session * button in the right hand window.
 4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
 5. Click on the * start session * button.
+6. Review the cloud-init script output to verify that the installaiton was sucessful.
+```
+cat /var/log/cloud-init-output.log | more
+```
+
+## Configure snort
+1. In the AWS Console, open the * System Manager * console.
+2. Select * Session Manager * in the menu in the left hand window.
+3. Click on the * Start Session * button in the right hand window.
+4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
+5. Click on the * start session * button.
+6. Navigate to the ssm-user home directory and runn the following commands
+```
+cd ~
+sudo yum install git
+git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.git
+cd aws-reinvent-2019-builders-session-opn215
+
+```
 
 ## Delete the stack
 1. In the AWS console, open the S3 console.
 2. Select the bucket with the name beginning with * aws-snort-demo-ssmloggingbucket *.
 3. Delete the bucket.
 4. In the AWS console, open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
-5. Select the * Stacks * menu item in the side window.  Select the stakc names * aws-snort-demo *.  Click on the * delete * button.
+5. Select the * Stacks * menu item in the side window.  Select the stack named * aws-snort-demo *.  Click on the * delete * button.
