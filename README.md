@@ -78,3 +78,9 @@ Value  | SnortSensor
 4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
 5. Click on the * start session * button.
 
+## Delete the stack
+1. In the AWS console, open the S3 console.
+2. Select the bucket with the name beginning with * aws-snort-demo-ssmloggingbucket *.
+3. Delete the bucket.
+4. In the AWS console, open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
+5. Select the * Stacks * menu item in the side window.  Select the stakc names * aws-snort-demo *.  Click on the * delete * button.
