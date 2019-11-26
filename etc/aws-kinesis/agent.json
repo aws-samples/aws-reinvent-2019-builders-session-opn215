@@ -5,11 +5,11 @@
   "flows": [
     {
       "filePattern": "/var/log/snort/alert.csv*",
-      "deliveryStream": "aws-snort-demo-SnortAlertStream-1NPIENEBAX7ND"
+      "deliveryStream": "aws-snort-demo-SnortAlertStream"
     },
     {
       "filePattern": "/var/log/snort/tcp_dump.log*",
-      "deliveryStream": "aws-snort-demo-SnortPacketStream-OQO2ZFA43AKD"
+      "deliveryStream": "aws-snort-demo-SnortPacketStream"
     }
   ]
 }

@@ -1,10 +1,10 @@
 #!/bin/bash
-echo "INFO: Running updates"
-sudo yum update -y
-sleep 1
 echo "INFO: Adding EPEL repo"
 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sleep 1
+echo "INFO: Installing Oracle java"
+sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/jdk-8u231-linux-x64.rpm -O /var/tmp/jdk-8u231-linux-x64.rpm
+sudo yum install -y /var/tmp/jdk-8u231-linux-x64.rpm
 echo "INFO: Installing Kinesis agent"
 sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
 sleep 1
