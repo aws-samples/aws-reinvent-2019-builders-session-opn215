@@ -32,7 +32,7 @@ etc\sysconfig\snort
 ## Description
 This project builds a simple infrastructure for installing Snort and processing the log files with Kinesis Firehose.
 
-## Deploy the stack
+## A. Deploy the stack
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
 2. Select the * Stacks * menu item in the side window.  Click on the * Create Stack * button.
 3. In the * Specify Template * page, navigate to the * specify a template * section and select the option to * upload a template file *.
@@ -41,8 +41,50 @@ This project builds a simple infrastructure for installing Snort and processing 
 6. In the * configure stack options * page, accept the defaults and click on the * next * buttont to continue.  
 7. In the * review aws-snort-demo * page, scroll to the bottom of the page and make sure that the tickbox * I acknowledge that AWS CloudFormation might create IAM resources with custom names * is ticked.  Click on the * create stack * button continue.
 
+## B. Open a shell session to the Snort Sensor
+1. In the AWS Console, open the * System Manager * console.
+2. Select * Session Manager * in the menu in the left hand window.
+3. Click on the * Start Session * button in the right hand window.
+4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
+5. Click on the * start session * button.
+6. Review the cloud-init script output to verify that the installation was sucessful.
+```
+cat /var/log/cloud-init-output.log | more
+```
+
+## C. Download tools package
+1. In the AWS Console, open the * System Manager * console.
+2. Select * Session Manager * in the menu in the left hand window.
+3. Click on the * Start Session * button in the right hand window.
+4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
+5. Click on the * start session * button.
+6. Navigate to the ssm-user home directory and run the following commands
+```
+cd ~
+sudo yum install -y git
+git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.git
+cd aws-reinvent-2019-builders-session-opn215
+
+```
+
+## D. Install Kinesis Agent and Snort agent
+1. In the AWS Console, open the * System Manager * console.
+2. Select * Session Manager * in the menu in the left hand window.
+3. Click on the * Start Session * button in the right hand window.
+4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
+5. Click on the * start session * button.
+6. Navigate to the ssm-user home directory and run the following commands
+```
+cd ~
+cd aws-reinvent-2019-builders-session-opn215
+cd scripts
+chmod +x *.*
+./snort-install.sh
+./snort-configure.sh
+```
+
 ## Install Snort and Kinesis Firehose agent
-1. In the AWS Console, optn the * System Manager * console.
+1. In the AWS Console, open the * System Manager * console.
 2. Select * Run Command * in the menu in the left hand window.
 3. Click on the * Run Command * button in the right hand window.
 4. Type * AWS-RunShellScript * in the search bar and press the * return * key.
@@ -71,16 +113,7 @@ Value  | SnortSensor
 8. In the * output option * section, ensure that the tickbox * Enable writing to S3 bucket * is ticked.  Select the radio button * choose a bucket name from the list *.  Click on the dropdown list and select the bucket with the name beginning with * aws-snort-demo-ssmloggingbucket *. 
 9. Click on the * run * button.
 
-## Open a shell session to the Snort Sensor
-1. In the AWS Console, open the * System Manager * console.
-2. Select * Session Manager * in the menu in the left hand window.
-3. Click on the * Start Session * button in the right hand window.
-4. Click on the * radio button * for the * SnortSensor * EC2 instance. 
-5. Click on the * start session * button.
-6. Review the cloud-init script output to verify that the installaiton was sucessful.
-```
-cat /var/log/cloud-init-output.log | more
-```
+
 
 ## Configure snort
 1. In the AWS Console, open the * System Manager * console.

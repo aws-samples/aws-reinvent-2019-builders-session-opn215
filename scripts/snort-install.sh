@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 echo "INFO: Adding EPEL repo"
 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 sleep 1
@@ -19,7 +19,6 @@ sudo wget -nv https://www.snort.org/downloads/community/community-rules.tar.gz -
 sudo gunzip /var/tmp/community-rules.tar.gz
 sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
 sudo cp /var/tmp/community-rules/* /etc/snort/rules/
-sudo chmod 5775 /var/log/snort
 sleep 1
 echo "INFO: Enabling services"
 sudo chkconfig snortd on
