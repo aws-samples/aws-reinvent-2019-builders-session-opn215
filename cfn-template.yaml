@@ -130,32 +130,35 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          echo "Running updates"
-          sudo yum update -y
+          echo "INFO - Running updates"
+          yum update -y
           sleep 2
-          echo "Adding EPEL repo"
-          sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          echo "INFO - Adding EPEL repo"
+          yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           sleep 2
-          echo "Installing Kinesis agent"
-          sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
+          echo "INFO - Installing Oracle JDK"
+          wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "https://download.oracle.com/otn-pub/java/jdk/13.0.1+9/cec27d702aa74d5a8630c65ae61e4305/jdk-13.0.1_linux-x64_bin.rpm" -O /var/tmp/jdk-13.0.1_linux-x64_bin.rpm
+          yum localinstall -y jdk-13.0.1_linux-x64_bin.rpm
+          echo "INFO - Installing Kinesis agent"
+          yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
           sleep 2
-          echo "Installing daq package"
-          sudo yum install -y https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
+          echo "INFO - Installing daq package"
+          yum install -y https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
           sleep 2
-          echo "Installing snort package"
-          sudo yum install -y https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
+          echo "INFO - Installing snort package"
+          yum install -y https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
           sleep 2
-          echo "Installing snort community rules"
-          sudo wget -nv https://www.snort.org/downloads/community/community-rules.tar.gz -O /var/tmp/community-rules.tar.gz
-          sudo gunzip /var/tmp/community-rules.tar.gz
-          sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
-          sudo cp /var/tmp/community-rules/* /etc/snort/rules/
-          sudo chmod 5775 /var/log/snort
+          echo "INFO - Installing snort community rules"
+          wget -nv https://www.snort.org/downloads/community/community-rules.tar.gz -O /var/tmp/community-rules.tar.gz
+          gunzip /var/tmp/community-rules.tar.gz
+          tar -C /var/tmp -xvf /var/tmp/community-rules.tar
+          cp /var/tmp/community-rules/* /etc/snort/rules/
+          chmod 5775 /var/log/snort
           sleep 2
-          echo "Enabling services"
-          sudo chkconfig snortd on
-          sudo chkconfig aws-kinesis-agent on
-          echo "done."
+          echo "INFO - Enabling services"
+          chkconfig snortd on
+          chkconfig aws-kinesis-agent on
+          echo "INFO - done."
       Tags: 
         - 
           Key: "Name"
