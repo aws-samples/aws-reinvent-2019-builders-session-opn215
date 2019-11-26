@@ -8,7 +8,7 @@
       "deliveryStream": "aws-snort-demo-SnortAlertStream-1NPIENEBAX7ND"
     },
     {
-      "filePattern": "/var/log/tcp_dump.log*",
+      "filePattern": "/var/log/snort/tcp_dump.log*",
       "deliveryStream": "aws-snort-demo-SnortPacketStream-OQO2ZFA43AKD"
     }
   ]
