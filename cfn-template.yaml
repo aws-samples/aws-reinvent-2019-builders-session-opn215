@@ -271,6 +271,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess
 
   SSMEndPoint:
     Type: AWS::EC2::VPCEndpoint
