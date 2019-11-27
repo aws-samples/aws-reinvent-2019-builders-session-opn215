@@ -120,7 +120,6 @@ tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
 
 ## Z. Delete the stack
 1. In the AWS console, open the S3 console.
-2. Select the bucket with the name beginning with *aws-snort-demo-ssmloggingbucket*.
-3. Delete the bucket.
-4. In the AWS console, open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
-5. Select the *Stacks* menu item in the side window.  Select the stack named *aws-snort-demo*.  Click on the *delete* button.
+2. Select and delete the buckets with names beginning with *aws-snort-demo*.
+3. In the AWS console, open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
+4. Select the *Stacks* menu item in the side window.  Select the stack named *aws-snort-demo*.  Click on the *delete* button.
