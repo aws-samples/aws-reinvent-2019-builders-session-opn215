@@ -4,11 +4,11 @@
   "firehose.endpoint": "https://firehose.eu-central-1.amazonaws.com",  
   "flows": [
     {
-      "filePattern": "/var/log/snort/alert.csv*",
+      "filePattern": "/var/log/snort/alerts.csv*",
       "deliveryStream": "aws-snort-demo-SnortAlertStream"
     },
     {
-      "filePattern": "/var/log/snort/tcp_dump.log*",
+      "filePattern": "/var/log/snort/tcpdump.log*",
       "deliveryStream": "aws-snort-demo-SnortPacketStream"
     }
   ]

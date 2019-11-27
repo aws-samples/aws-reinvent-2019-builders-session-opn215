@@ -83,7 +83,7 @@ chmod +x *.*
 ./snort-configure.sh
 ```
 
-## E. Validate Snort installation
+## E. Validate Snort configuration
 1. In the AWS Console, open the *System Manager* console.
 2. Select *Session Manager* in the menu in the left hand window.
 3. Click on the *Start Session* button in the right hand window.
@@ -104,6 +104,18 @@ sudo snort -T -c /etc/snort/snort.conf
 ```
 sudo service aws-kinesis-agent start
 sudo service snortd start
+```
+
+## F. Validate Snort and Kinesis are running
+1. In the AWS Console, open the *System Manager* console.
+2. Select *Session Manager* in the menu in the left hand window.
+3. Click on the *Start Session* button in the right hand window.
+4. Click on the *radio button* for the *SnortSensor* EC2 instance. 
+5. Click on the *start session* button.
+6. Navigate to the ssm-user home directory and run the following commands
+```
+tail -f /var/log/snort/alert.csv
+tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
 ```
 
 ## Install Snort and Kinesis Firehose agent
