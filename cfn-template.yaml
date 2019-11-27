@@ -355,3 +355,7 @@ Resources:
   SSMLoggingBucket:
     Type: 'AWS::S3::Bucket'
     Properties: {}
+
+  AthenaQueryResultsBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties: {}
