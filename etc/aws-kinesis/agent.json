@@ -1,7 +1,7 @@
 {
   "cloudwatch.emitMetrics": true,
-  "kinesis.endpoint": "https://kinesisanalytics.eu-west-1.amazonaws.com",
-  "firehose.endpoint": "https://firehose.eu-central-1.amazonaws.com",  
+  "kinesis.endpoint": "https://kinesisanalytics.us-east-1.amazonaws.com",
+  "firehose.endpoint": "https://firehose.us-east-1.amazonaws.com",  
   "flows": [
     {
       "filePattern": "/var/log/snort/alerts.csv*",

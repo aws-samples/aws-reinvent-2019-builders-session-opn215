@@ -91,6 +91,7 @@ chmod +x *.*
 5. Click on the *start session* button.
 6. Navigate to the ssm-user home directory and run the following commands
 ```
+cd ~
 sudo snort -T -c /etc/snort/snort.conf
 ```
 
@@ -114,8 +115,16 @@ sudo service snortd start
 5. Click on the *start session* button.
 6. Navigate to the ssm-user home directory and run the following commands
 ```
+cd ~
 tail -f /var/log/snort/alerts.csv
 tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
+```
+### Common issues
+#### ResourceNotFoundException
+The kinesis agent configuration file is hard coded to use the us-east-1 region endpoint.  If you see the 
+ResourceNotFoundException then you need to update the agent.json file with the url for your regional endpoint.  
+```
+com.amazon.kinesis.streaming.agent.tailing.AsyncPublisher [ERROR] AsyncPublisher[fh:aws-snort-demo-SnortPacketStream:/var/log/snort/tcpdump.log*]:RecordBuffer(id=20,records=500,bytes=49831) Retriable send error (com.amazonaws.services.kinesisfirehose.model.ResourceNotFoundException: Firehose aws-snort-demo-SnortPacketStream not found under account 566240252914. (Service: AmazonKinesisFirehose; Status Code: 400; Error Code: ResourceNotFoundException; Request ID: c45880cc-174a-be21-9200-59038190176e)). Will retry.
 ```
 
 ## Z. Delete the stack
