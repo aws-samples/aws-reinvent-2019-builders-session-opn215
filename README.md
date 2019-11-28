@@ -41,7 +41,10 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 
 ## B. Open a shell session to the Snort Sensor
 ---
-In this section we will use Session Manager to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
+In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
+
+---
+![Systems manager](images/systems-manager.jpg "Systems Manager")
 
 ---
 1. In the AWS Console, open the **System Manager** console.
@@ -56,11 +59,14 @@ cat /var/log/cloud-init-output.log | more
 
 ## C. Download tools package
 ---
-In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager Run Command feature which allows you to apply updates across multiple instances based on tags or instance ids.
+In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager ![Run Command](https://docs.aws.amazon.com/systems-manager/latest/userguide/execute-remote-commands.html "Run Command") feature which allows you to apply updates across multiple instances based on tags or instance ids.
+
+---
+![Run Command](images/run-command.jpg "Run Command")
 
 ---
 1. In the AWS Console, open the **System Manager** console.
-2. Select **Session Manager** in the menu in the left hand window.
+2. Select **Run Command** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
