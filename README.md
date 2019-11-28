@@ -4,7 +4,7 @@
 This project builds a simple infrastructure for installing Snort and processing the log files with Kinesis Firehose.
 
 ## Contents
-```bash
+```
 .
 |-- README.md                         <-- This instructions file
 |-- cfn-template.yaml                 <-- Cloudformtation template for lab environment
@@ -40,24 +40,32 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 7. In the **review aws-snort-demo** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
 ## B. Open a shell session to the Snort Sensor
+---
+In this section we will use Session Manager to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
+
+---
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
 6. Review the cloud-init script output to verify that the installation was sucessful.
-```
+```bash
 cat /var/log/cloud-init-output.log | more
 ```
 
 ## C. Download tools package
+---
+In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager Run Command feature which allows you to apply updates across multiple instances based on tags or instance ids.
+
+---
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
-```
+```bash
 cd ~
 sudo yum install -y git
 git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.git
@@ -66,13 +74,17 @@ cd aws-reinvent-2019-builders-session-opn215
 ```
 
 ## D. Install Kinesis Agent and Snort agent
+---
+Now that we have the installation and configuration packages installed locally we can start the process of executing those tasks.  The example below uses Session manager to execute this task, however you could also use the Systems manager Run-Command as you did in section C.
+
+---
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
-```
+```bash
 cd ~
 cd aws-reinvent-2019-builders-session-opn215
 cd scripts
@@ -82,16 +94,20 @@ chmod +x *.*
 ```
 
 ## E. Validate Snort configuration
+---
+Before we give our Snort server a clean bill of health we need to check that configuration is working ok.  Use the Session Manager to open a shell on the remote host and run the snort configuration check.
+
+---
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
---
+```bash
 cd ~
 sudo snort -T -c /etc/snort/snort.conf
---
+```
 
 ## E. Start Snort and Kinesis agents
 1. In the AWS Console, open the *System Manager* console.
@@ -100,7 +116,7 @@ sudo snort -T -c /etc/snort/snort.conf
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
-```
+```bash
 cd ~
 sudo service aws-kinesis-agent start
 sudo service snortd start
@@ -113,7 +129,7 @@ sudo service snortd start
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
-```
+```bash
 cd ~
 tail -f /var/log/snort/alerts.csv
 tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
@@ -124,7 +140,7 @@ tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
 #### ResourceNotFoundException
 The kinesis agent configuration file is hard coded to use the us-east-1 region endpoint.  If you see the 
 ResourceNotFoundException then you need to update the agent.json file with the url for your regional endpoint.  
-```
+```bash
 com.amazon.kinesis.streaming.agent.tailing.AsyncPublisher [ERROR] AsyncPublisher[fh:aws-snort-demo-SnortPacketStream:/var/log/snort/tcpdump.log*]:RecordBuffer(id=20,records=500,bytes=49831) Retriable send error (com.amazonaws.services.kinesisfirehose.model.ResourceNotFoundException: Firehose aws-snort-demo-SnortPacketStream not found under account 566240252914. (Service: AmazonKinesisFirehose; Status Code: 400; Error Code: ResourceNotFoundException; Request ID: c45880cc-174a-be21-9200-59038190176e)). Will retry.
 ```
 ---
@@ -150,7 +166,7 @@ timestamp string, sig_generator string, sig_id string, sig_rev string, msg strin
 14. You will now see the **configure partitions** page.  Click on the button to ***create table***.
 15.  You will be returned to the Athena query console.  Select the **SnortAlertData** databasein the left have drop down list.  Click on the **run query** button to create the table.  You shoudl see a **query sucessful** message in the **results** window.
 16. Run a simple query on your alert data as shown below:
-```
+```sql
 select * from snort_alerts limit 1000
 ```
 17. Save a copy of your query bu clicking on the **Save as** button.  Name your query **last-1k-snort-alerts** and add a description.  Click on the **save** button to continue.  Click on the **Saved queries** tab to check your query is listed.
@@ -167,11 +183,11 @@ select * from snort_alerts limit 1000
 8. You will now see some default data sets.  Click on the **new data set** button to continue.
 9. The **Create a Data Set** page will open.  Select the **Athena** button and type in the name **SnortAlertDataSource**.  Click on the **Create Data Source** button to continue.
 10. You will now see the **choose your table** page.  Select **snortalertdata** from the **database** list.  Select **snort_alert** from the **table** list.  Click on the **select** button to continue.
-11. The **finsih data set creation** page will be displayed.  Leave the default seting to import SPICE and click on the **visualise** button.
+11. The **finish data set creation** page will be displayed.  Leave the default seting to import SPICE and click on the **visualise** button.
 12. You may see no data at first, so click on the refresh import link to continue.  If you see a permission error then see the troubleshooting section below.  Whern the data appears int he SPICE page, select the save and visualise button to return to the visualization page.
 13. In the **feilds list**, select **src** and **proto**.  Leave the **visual type** as **auto**.  You should noe have a barf chart showign you the top talkers to your server by protocol.
 14. Select the top talker in the bar chart, then click on the **focus only on IP** setting.  You will now see only traffic from that single IP.
-13. Whoohoo!  You can now visualise your alert data usign Quicksight!  Try our different graphs to identify the most common surce IP for alerts, protocol, and experiment with the feilds available to you.
+13. **Whoohoo!**  You can now visualise your alert data using Quicksight!  Try our different graphs to identify the most common surce IP for alerts, protocol, and experiment with the feilds available to you.
 ---
 ### Common issues
 #### Insufficient Permissions
