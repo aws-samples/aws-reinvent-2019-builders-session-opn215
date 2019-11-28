@@ -26,7 +26,10 @@ This project builds a simple infrastructure for installing Snort and processing 
 ## A. Deploy the stack
 ---
 In this section we will use CloudFormation to deploy the intial stack.  This includes all the infrastructure needed to get the basic environment working.  The diagram below represents the stack in is current form.
-![Solution Architecture](images/Architecture.png)
+
+---
+![Architecture Diagram](images/Architecture.jpg "Architecture diagram")
+
 ---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
 2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
@@ -173,6 +176,7 @@ select * from snort_alerts limit 1000
 ### Common issues
 #### Insufficient Permissions
 Quicksight may not have all the permissions required to access the Snort data.  This may show up asn an error when you try to load the data set.  To resolve this, select the profile in the top right corner > manage quicksight > security & permissions.  Click ont eh button to add or remove Quicksight access to AWS services.  Untick the tickbox for Atehna, then tick it again.  When asked to set up access for S3 buckets, select the buckets you created for the snort aleert data and the athena query data.  Click on the update button to finish. 
+
 ---
 ## Z. Delete the stack
 1. In the AWS console, open the S3 console.
