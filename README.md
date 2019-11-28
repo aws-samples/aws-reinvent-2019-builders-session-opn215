@@ -24,6 +24,10 @@ This project builds a simple infrastructure for installing Snort and processing 
 ```
 
 ## A. Deploy the stack
+---
+In this section we will use CloudFormation to deploy the intial stack.  This includes all the infrastructure needed to get the basic environment working.  The diagram below represents the stack in is current form.
+![Solution Architecture](images/Architecture.png)
+---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
 2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
 3. In the **Specify Template** page, navigate to the **specify a template** section and select the option to **upload a template file**.
@@ -129,7 +133,7 @@ com.amazon.kinesis.streaming.agent.tailing.AsyncPublisher [ERROR] AsyncPublisher
 3. In the AWS Console, open the **Athena** console.
 4. Click on the **Get Started** link.
 5. Click on the link to **set up a query result location in Amazon S3**. 
-6. Select the **s3://<your athena query bucket here>/results/**.
+6. Select the **s3://*your athena query bucket here*/results/**.
 7. In the left had window, select the linke **Create Table - from S3 bucket data**.
 8. In the **Databases > Add table** page, set the new **database** name to **SnortAlertData**.
 9. Set the table name to **snort_alerts**.
@@ -165,10 +169,11 @@ select * from snort_alerts limit 1000
 13. In the **feilds list**, select **src** and **proto**.  Leave the **visual type** as **auto**.  You should noe have a barf chart showign you the top talkers to your server by protocol.
 14. Select the top talker in the bar chart, then click on the **focus only on IP** setting.  You will now see only traffic from that single IP.
 13. Whoohoo!  You can now visualise your alert data usign Quicksight!  Try our different graphs to identify the most common surce IP for alerts, protocol, and experiment with the feilds available to you.
+---
 ### Common issues
 #### Insufficient Permissions
 Quicksight may not have all the permissions required to access the Snort data.  This may show up asn an error when you try to load the data set.  To resolve this, select the profile in the top right corner > manage quicksight > security & permissions.  Click ont eh button to add or remove Quicksight access to AWS services.  Untick the tickbox for Atehna, then tick it again.  When asked to set up access for S3 buckets, select the buckets you created for the snort aleert data and the athena query data.  Click on the update button to finish. 
-
+---
 ## Z. Delete the stack
 1. In the AWS console, open the S3 console.
 2. Select and delete the buckets with names beginning with *aws-snort-demo*.
