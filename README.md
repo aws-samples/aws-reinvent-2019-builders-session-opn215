@@ -62,7 +62,7 @@ cat /var/log/cloud-init-output.log | more
 In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager ![Run Command](https://docs.aws.amazon.com/systems-manager/latest/userguide/execute-remote-commands.html "Run Command") feature which allows you to apply updates across multiple instances based on tags or instance ids.
 
 ---
-![Run Command](images/run-command.jpg "Run Command")
+![Run Command](images/run-command.png "Run Command")
 
 ---
 1. In the AWS Console, open the **System Manager** console.
