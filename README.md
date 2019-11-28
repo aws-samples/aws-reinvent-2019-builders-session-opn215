@@ -56,6 +56,7 @@ In this section we will use ![Session Manager](https://docs.aws.amazon.com/syste
 ```bash
 cat /var/log/cloud-init-output.log | more
 ```
+7. **Whoohoo!**  You have not access you new Linus instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation ![here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
 
 ## C. Download tools package
 ---
@@ -67,17 +68,28 @@ In this section we will copy the artifacts we need to complete the installation 
 ---
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Run Command** in the menu in the left hand window.
-3. Click on the **Start Session** button in the right hand window.
-4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
-5. Click on the **start session** button.
-6. Navigate to the ssm-user home directory and run the following commands
+3. Click on the **Run a command** button in the right hand window.
+4. Type **AWS-RunShellScript** into the search bar and press the **return** key. 
+5. Select the radio button for the **AWS-RunShellScript** document.
+6. Scroll down until you see the **Command Parameters** feild.  Copy and past the following commands into that feild.
 ```bash
-cd ~
 sudo yum install -y git
 git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.git
-cd aws-reinvent-2019-builders-session-opn215
-
 ```
+7. In the working directory feild, type in **/home/ssm-user**.
+8. Scroll down to the **Targets** section.
+9. Select the raiod button for **Specify instance tags**.
+10. Type the following values into the feilds for the tags and then click on the **Add** button.
+|Tag Key|Value|
+|SSMType|SnortSensor|
+11. Scroll down to the **Output options** section.  Ensure that the **Enable writing to S3 bucket** tickbox is ticked and the **Choose a bucket name from the list** radio button is selected. 
+12. Click on the drop down list and select the bucket beginning with the name **aws-snort-demo-ssmloggingbucket-*uniqueid***.  
+13. Click on the **run** button to execute the command.
+14. You will see the status page for the command execution.  Click on the refresh button a few times until the **sucess** message appears.
+15. In the **targets and outputs** section you can see which instances the command ran on. Select an instance by clicking on the link in the **Instance ID** column.   
+16. You can see the partial command output in **Step 1 - Output** feild.  To see the full output click on the **Amazon S3** button.  The contents of this bucket are organised by instance ID, and the command that was run.
+17. Validate the commands ran according to plan by examining the stderr and stdout.  This is a simple example but to get better information use a more comprehensive shell script with proper debug and exception handling.  You can also check the package is in the ssm-users home directory by accessing the instance using **Session Manager**.
+18.  **Whoohoo!**  You just ran a set of commands across some instance based on their tag name.  By using this technique you can run commands to update all your Snort sensors in batch mode, including the ones in your on-premisis network.
 
 ## D. Install Kinesis Agent and Snort agent
 ---
