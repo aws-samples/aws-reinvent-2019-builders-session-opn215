@@ -148,9 +148,10 @@ sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/jdk-8u231-linux-
 sudo yum install -y /var/tmp/jdk-8u231-linux-x64.rpm
 sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
 sudo chkconfig aws-kinesis-agent on
+sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/aws-kinesis/agent.json /etc/aws-kinesis/agent.json
 
 ```
-7. **Whoohoo!**  You now have your Snort sensor ready to send data to AWS.  thsi work really well when you have a large number of Snort sensors, both on-premisis or in the Cloud and you need a scalable way of storing all the alert information and packets for analytics.
+7. **Whoohoo!**  You now have your Snort sensor ready to send data to AWS.  This work really well when you have a large number of Snort sensors, both on-premisis or in the Cloud and you need a scalable way of storing all the alert information and packets for analytics.
 
 ## E. Validate Snort configuration
 ---
