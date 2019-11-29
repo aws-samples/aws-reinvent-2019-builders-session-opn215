@@ -1,7 +1,12 @@
 # Intelligent Automation with AWS and Snort IDS
 
 ## Description
-This project builds a simple infrastructure for installing Snort and processing the log files with Kinesis Firehose.
+This project demonstrates some of the ways to can add value to your existing Snort IDS system by integrating it with AWS.
+Things you will explore include:
+* Centrailise and automate management of your Snort Sensors using a number of tools in the Systems Manager service
+* Ingest Snort alert and packet data in a scalable, cost effective and secure manner with Kinesis Firehose
+* Store your Snort Sensor data in a scalable and cost effective manner using Simple Storage Service S3
+* Gain insights from your Snort data usign Analytics services Athena and Quicksight
 
 ## Contents
 ```
@@ -204,9 +209,16 @@ ResourceNotFoundException then you need to update the agent.json file with the u
 com.amazon.kinesis.streaming.agent.tailing.AsyncPublisher [ERROR] AsyncPublisher[fh:aws-snort-demo-SnortPacketStream:/var/log/snort/tcpdump.log*]:RecordBuffer(id=20,records=500,bytes=49831) Retriable send error (com.amazonaws.services.kinesisfirehose.model.ResourceNotFoundException: Firehose aws-snort-demo-SnortPacketStream not found under account 566240252914. (Service: AmazonKinesisFirehose; Status Code: 400; Error Code: ResourceNotFoundException; Request ID: c45880cc-174a-be21-9200-59038190176e)). Will retry.
 ```
 ---
+### POINT TO NOTE
+The local.rules file that is used for this demo is VERY verbose.  Basically, its recording every network packet the Snort Sensor sees arriving on the host.  Thats a lot of packets!  To make this more sensible try forking the repo and creating your own local.rules file.  For the purposes of the demo its good to see the scalability of Snort, Kinesis, Athena and Quicksight in action but that local.rules files does not represent what you woudl normally do in a production environment.
 
+---
 
 ## G. Query Snort data with Athena
+---
+We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
+
+---
 1. In thwe AWS Console, open the **S3** service.
 2. Copy the name of he S3 buckect that starts with **SnortStack-AthenaQueryResultsBucket**.  Also copy the anme of the bucket beginning with **aws-snort-demo-snortalertdata**.  You will need these later.
 3. In the AWS Console, open the **Athena** console.
@@ -233,6 +245,10 @@ select * from snort_alerts limit 1000
 17.  **Whoohoo!**  You can now perform adhoc queries on your Snort alert data using Athena!  Try out some different sample queries to see what you can discover about the network traffic hitting your server.
 
 ## H. Visualise Snort data in Quicksight
+---
+As you can see, its easy to get up and runing with Athena for ad-hoc queries of our Snort data.  Next, we will set up some visualisations for our data using Quicksight.
+
+---
 1. In thwe AWS Console, open the **Quicksight** service.
 2. The first time you use this you will be asked to sign up.  Click on the **sign up for quicksight** button to continue.
 3. You will see the licensing options, leatf the defaul of **Enterprise** and click the **continue** button.
@@ -254,8 +270,14 @@ select * from snort_alerts limit 1000
 Quicksight may not have all the permissions required to access the Snort data.  This may show up asn an error when you try to load the data set.  To resolve this, select the profile in the top right corner > manage quicksight > security & permissions.  Click ont eh button to add or remove Quicksight access to AWS services.  Untick the tickbox for Atehna, then tick it again.  When asked to set up access for S3 buckets, select the buckets you created for the snort aleert data and the athena query data.  Click on the update button to finish. 
 
 ---
+
+## Y. What next?
+This lab is a basis for further exploration on the subject of how to get insights from your NIDS systems.  It highlighted the strenghts of using automation tools for deployign and managig Snort Sensors.  We explored how to run simple SQL querieis and generate visual reports.  Movign forward you can explore further automation ideas:
+* Implement a CI/CD piepline for Snort configuration management using CodePipeline
+* Anomaly detection usign Sagemaker
+
 ## Z. Delete the stack
 1. In the AWS console, open the S3 console.
-2. Select and delete the buckets with names beginning with *aws-snort-demo*.
+2. Select and delete the buckets with names beginning with **SnortStack**.
 3. In the AWS console, open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
-4. Select the *Stacks* menu item in the side window.  Select the stack named *aws-snort-demo*.  Click on the *delete* button.
+4. Select the **Stacks** menu item in the side window.  Select the stack named **SnortStack**.  Click on the **delete** button.
