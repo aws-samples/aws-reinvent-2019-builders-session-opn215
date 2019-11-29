@@ -267,7 +267,7 @@ As you can see, its easy to get up and runing with Athena for ad-hoc queries of 
 10. You will now see the **choose your table** page.  Select **snortalertdata** from the **database** list.  Select **snort_alerts** from the **table** list.  Click on the **select** button to continue.
 11. The **finish data set creation** page will be displayed.  Leave the default seting to import SPICE and click on the **visualise** button.
 12. You may see no data at first, so click on the refresh import link to continue.  If you see a permission error then see the troubleshooting section below.  Whern the data appears int he SPICE page, select the save and visualise button to return to the visualization page.
-13. In the **feilds list**, select **src** and **proto**.  Leave the **visual type** as **auto**.  You should noe have a barf chart showign you the top talkers to your server by protocol.
+13. In the **feilds list**, select **src** and **proto**.  Leave the **visual type** as **auto**.  You should noe have a bar chart showing you the top talkers to your server by protocol.
 14. Select the top talker in the bar chart, then click on the **focus only on IP** setting.  You will now see only traffic from that single IP.
 13. **Whoohoo!**  You can now visualise your alert data using Quicksight!  Try our different graphs to identify the most common surce IP for alerts, protocol, and experiment with the feilds available to you.
 ---
