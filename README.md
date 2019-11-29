@@ -56,7 +56,7 @@ In this section we will use ![Session Manager](https://docs.aws.amazon.com/syste
 ```bash
 cat /var/log/cloud-init-output.log | more
 ```
-7. **Whoohoo!**  You have not access you new Linus instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation ![here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
+7. **Whoohoo!**  You have not access you new Linux instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation ![here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
 
 ## C. Download tools package
 ---
@@ -100,7 +100,7 @@ AN Automation document is a way of creating a multi-step deployment that trigger
 ![Automation](images/automation.png "Automation")
 
 ---
-1. In the AWS Console, open the **System Manager** console.
+1. In the AWS Console, open the **System Manager** console.  Also, nake sure your region is us-east-1.
 2. Select **Documents** in the menu in the left hand window.
 3. Click on the **Owned By Me** tab in the right hand window.
 4. Click on the document with the name beginning with **SnortStack-SnortInstall-*uniqueid***.
@@ -108,11 +108,12 @@ AN Automation document is a way of creating a multi-step deployment that trigger
 6. In the Execute automatyion document page, scroll down to the **Input Parameters** section and click on the slider button **show interactive instance picker**.  Select the instance names **SnortSensor**.
 7. Click on the **execute** button.
 8. You will now see the execution detail page.  This shows you the execution ID for each step.  Click on the link for one of these id's so that you can view the output of the shell script command.
+9. **Whoohoo!** You just ran a complete installation in a few clicks!  
 
 ## D. Configure Snort
 ---
 In this section we use Systems manager Automation Document to update the local configuration of Snort on the sensor.
-The automation copies the configuration files from our central repository whene the files are under version control.  It then deploys the files on the local host.
+The automation copies the configuration files from our central repository whene the files are under version control.  It then deploys the files on the local host.  this is a great way to allow you to have controlled change and automated deplyment for your Snort configuration and rules.
 
 ---
 ![Automation](images/automation.png "Automation")
@@ -126,13 +127,14 @@ The automation copies the configuration files from our central repository whene 
 6. In the Execute automatyion document page, scroll down to the **Input Parameters** section and click on the slider button **show interactive instance picker**.  Select the instance names **SnortSensor**.
 7. Click on the **execute** button.
 8. You will now see the execution detail page.  This shows you the execution ID for each step.  Click on the link for one of these id's so that you can view the output of the shell script command.
+9. **Whoohoo!** you just updated your Snort configuration using your repo as a source control!  This make the task of rolling out rules updates must simpler.  You can now trigger rules refreshes using automation from events. For example, if you use CodePipeline to stoere your Snort rules, you can now trigger a rule refresh on all your sensors as part of a deployment pipleine.
 
 ## E. Install Kinesis agent
 ---
 In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") install the Kinesis agent.  Kinesis streams are a tool that allows lots of independant devices or services to send messages to a central aggregation point where we can store them for analyticis purposes.  In our case we are sending all the Snort alerts and packet captures to Kinesis Firehose, which in turn stores the data in S3 buckets for later use.
 
 ---
-![Kinesis Data Firehose](KinesisFirehose.jpg "Kinesis Data Firehose")
+![Kinesis Data Firehose](KinesisFirehose.png "Kinesis Data Firehose")
 
 ---
 1. In the AWS Console, open the **System Manager** console.

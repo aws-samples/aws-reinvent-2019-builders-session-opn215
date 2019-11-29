@@ -467,11 +467,11 @@ Resources:
               Parameters:
                 commands: 
                   - >-
-                    sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/rc.d/init.d/snortd -O /etc/rc.d/init.d/snortd
-                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/snort.conf -O /etc/snort/snort.conf
-                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/sysconfig/snort -O /etc/sysconfig/snort
-                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/rules/local.rules -O /etc/snort/rules/local.rules
-                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/rules/white_list.rules -O /etc/snort/rules/white_list.rules
-                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/rules/black_list.rules -O /etc/snort/rules/black_list.rules
+                    sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/rc.d/init.d/snortd /etc/rc.d/init.d/snortd
+                  - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/snort.conf /etc/snort/snort.conf
+                  - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/sysconfig/snort /etc/sysconfig/snort
+                  - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/rules/local.rules /etc/snort/rules/local.rules
+                  - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/rules/white_list.rules /etc/snort/rules/white_list.rules
+                  - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/rules/black_list.rules /etc/snort/rules/black_list.rules
             description: Update all the Snort configuration files from GitHub repo.
             onFailure: Continue
