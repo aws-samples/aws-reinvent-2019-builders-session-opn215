@@ -1,4 +1,4 @@
-# AWS Snort Demo
+# Intelligent Automation with AWS and Snort IDS
 
 ## Description
 This project builds a simple infrastructure for installing Snort and processing the log files with Kinesis Firehose.
@@ -208,7 +208,7 @@ com.amazon.kinesis.streaming.agent.tailing.AsyncPublisher [ERROR] AsyncPublisher
 
 ## G. Query Snort data with Athena
 1. In thwe AWS Console, open the **S3** service.
-2. Copy the name of he S3 buckect that starts with **aws-snort-demo-AthenaQueryResultsBucket**.  Also copy the anme of the bucket beginning with **aws-snort-demo-snortalertdata**.  You will need these later.
+2. Copy the name of he S3 buckect that starts with **SnortStack-AthenaQueryResultsBucket**.  Also copy the anme of the bucket beginning with **aws-snort-demo-snortalertdata**.  You will need these later.
 3. In the AWS Console, open the **Athena** console.
 4. Click on the **Get Started** link.
 5. Click on the link to **set up a query result location in Amazon S3**. 
