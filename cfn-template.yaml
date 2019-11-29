@@ -362,7 +362,7 @@ Resources:
 
   SnortInstallAndConfigure:
     Type: 'AWS::SSM::Document'
-    Propterties:
+    Properties:
       Content:
         description: >-
           # SnortInstallAndConfigure
@@ -371,50 +371,50 @@ Resources:
           moves on to download and deploy the community rules.
         schemaVersion: '0.3'
         parameters:
-          InstanceId:
-          type: StringList
+          InstanceId: 
+            type: StringList
         mainSteps:
           - name: InstallEPELRepo
-              action: 'aws:runCommand'
-              inputs:
-                DocumentName: AWS-RunShellScript
-                InstanceIds:
-                  - '{{InstanceId}}'
-                Parameters:
-                  commands: >-
-                    sudo yum install -y
-                    https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-              description: Install the EPEL repo from remote location.
-              onFailure: Continue
+            action: 'aws:runCommand'
+            inputs:
+              DocumentName: AWS-RunShellScript
+              InstanceIds:
+                - '{{InstanceId}}'
+              Parameters:
+                commands: >-
+                  sudo yum install -y
+                  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            description: Install the EPEL repo from remote location.
+            onFailure: Continue
           - name: InstallDAQrpm
-              action: 'aws:runCommand'
-              inputs:
-                DocumentName: AWS-RunShellScript
-                InstanceIds:
-                  - '{{InstanceId}}'
-                Parameters:
-                  commands: >-
-                      sudo yum install -y
-                      https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
-              description: Installs the DAQ from the remote location.
-              onFailure: Continue
+            action: 'aws:runCommand'
+            inputs:
+              DocumentName: AWS-RunShellScript
+              InstanceIds:
+                - '{{InstanceId}}'
+              Parameters:
+                commands: >-
+                  sudo yum install -y
+                  https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
+            description: Installs the DAQ from the remote location.
+            onFailure: Continue
           - name: InstallSnortrpm
-              action: 'aws:runCommand'
-              inputs:
-                DocumentName: AWS-RunShellScript
-                InstanceIds:
-                  - '{{InstanceId}}'
-                Parameters:
-                  commands: >-
-                    sudo yum install -y
-                    https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
-              description: Installs the snort rpm
-              onFailure: Continue
+            action: 'aws:runCommand'
+            inputs:
+              DocumentName: AWS-RunShellScript
+              InstanceIds:
+                - '{{InstanceId}}'
+              Parameters:
+                commands: >-
+                  sudo yum install -y
+                  https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
+            description: Installs the snort rpm
+            onFailure: Continue
           - name: InstallCommunityRules
-              action: 'aws:runCommand'
-              inputs:
-                DocumentName: AWS-RunShellScript
-                Parameters:
+            action: 'aws:runCommand'
+            inputs:
+              DocumentName: AWS-RunShellScript
+              Parameters:
                 commands:
                   - >-
                     sudo wget -nv
@@ -423,7 +423,7 @@ Resources:
                   - sudo gunzip -f /var/tmp/community-rules.tar.gz
                   - sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
                   - sudo cp /var/tmp/community-rules/* /etc/snort/rules/
-                  InstanceIds:
-                    - '{{InstanceId}}'
-                  description: Installs the community rules package.
-                  onFailure: Continue
+              InstanceIds:
+                - '{{InstanceId}}'
+            description: Installs the community rules package.
+            onFailure: Continue
