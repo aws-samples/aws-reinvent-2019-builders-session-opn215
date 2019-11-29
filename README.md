@@ -86,6 +86,7 @@ git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.
 9. Select the raiod button for **Specify instance tags**.
 10. Type the following values into the feilds for the tags and then click on the **Add** button.
 |Tag Key|Value|
+|---|---|
 |SSMType|SnortSensor|
 11. Scroll down to the **Output options** section.  Ensure that the **Enable writing to S3 bucket** tickbox is ticked and the **Choose a bucket name from the list** radio button is selected. 
 12. Click on the drop down list and select the bucket beginning with the name **SnortStack-ssmloggingbucket-*uniqueid***.  
