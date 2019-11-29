@@ -173,7 +173,6 @@ Before we give our Snort server a clean bill of health we need to check that con
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
 ```bash
-cd ~
 sudo snort -T -c /etc/snort/snort.conf
 ```
 
@@ -185,7 +184,6 @@ sudo snort -T -c /etc/snort/snort.conf
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
 ```bash
-cd ~
 sudo service aws-kinesis-agent start
 sudo service snortd start
 ```
@@ -198,7 +196,6 @@ sudo service snortd start
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
 ```bash
-cd ~
 tail -f /var/log/snort/alerts.csv
 tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
 ```
