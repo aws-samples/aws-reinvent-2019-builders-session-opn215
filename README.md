@@ -3,7 +3,7 @@
 ## Description
 This project demonstrates some of the ways to can add value to your existing Snort IDS system by integrating it with AWS.
 Things you will explore include:
-* Centrailise and automate management of your Snort Sensors using a number of tools in the Systems Manager service
+* Centralise and automate management of your Snort Sensors using a number of tools in the Systems Manager service
 * Ingest Snort alert and packet data in a scalable, cost effective and secure manner with Kinesis Firehose
 * Store your Snort Sensor data in a scalable and cost effective manner using Simple Storage Service S3
 * Gain insights from your Snort data usign Analytics services Athena and Quicksight
