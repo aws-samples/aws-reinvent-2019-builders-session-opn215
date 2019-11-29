@@ -35,7 +35,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
 3. In the **Specify Template** page, navigate to the **specify a template** section and select the option to **upload a template file**.
 4. Select the **choose file** button, navigate to te directory where you downloaded the package and select the **cfn-template.yaml** file, then click on the **open** button.  Click on the **next** button to continue.
-5. In the **Stack Details** page, set the stack name to **aws-snort-demo**.  Look through the template parameters for your information, then click on the **next** button to continue.
+5. In the **Stack Details** page, set the stack name to **SnortStack**.  Look through the template parameters for your information, then click on the **next** button to continue.
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review aws-snort-demo** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
@@ -83,7 +83,7 @@ git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.
 |Tag Key|Value|
 |SSMType|SnortSensor|
 11. Scroll down to the **Output options** section.  Ensure that the **Enable writing to S3 bucket** tickbox is ticked and the **Choose a bucket name from the list** radio button is selected. 
-12. Click on the drop down list and select the bucket beginning with the name **aws-snort-demo-ssmloggingbucket-*uniqueid***.  
+12. Click on the drop down list and select the bucket beginning with the name **SnortStack-ssmloggingbucket-*uniqueid***.  
 13. Click on the **run** button to execute the command.
 14. You will see the status page for the command execution.  Click on the refresh button a few times until the **sucess** message appears.
 15. In the **targets and outputs** section you can see which instances the command ran on. Select an instance by clicking on the link in the **Instance ID** column.   
@@ -91,9 +91,48 @@ git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.
 17. Validate the commands ran according to plan by examining the stderr and stdout.  This is a simple example but to get better information use a more comprehensive shell script with proper debug and exception handling.  You can also check the package is in the ssm-users home directory by accessing the instance using **Session Manager**.
 18.  **Whoohoo!**  You just ran a set of commands across some instance based on their tag name.  By using this technique you can run commands to update all your Snort sensors in batch mode, including the ones in your on-premisis network.
 
-## D. Install Kinesis Agent and Snort agent
+## D. Install Snort
 ---
-Now that we have the installation and configuration packages installed locally we can start the process of executing those tasks.  The example below uses Session manager to execute this task, however you could also use the Systems manager Run-Command as you did in section C.
+In this section we use Systems manager Automation Document to install the Snort packages and deploy the common rules set.
+AN Automation document is a way of creating a multi-step deployment that triggers the Run Command with a script for parameters.  In this case each step of a Snort installation is executed seperately using a remote shell script ont he target hosts.
+
+---
+![Automation](images/automation.png "Automation")
+
+---
+1. In the AWS Console, open the **System Manager** console.
+2. Select **Documents** in the menu in the left hand window.
+3. Click on the **Owned By Me** tab in the right hand window.
+4. Click on the document with the name beginning with **SnortStack-SnortInstall-*uniqueid***.
+5. Click on the **Execute Automation** button.
+6. In the Execute automatyion document page, scroll down to the **Input Parameters** section and click on the slider button **show interactive instance picker**.  Select the instance names **SnortSensor**.
+7. Click on the **execute** button.
+8. You will now see the execution detail page.  This shows you the execution ID for each step.  Click on the link for one of these id's so that you can view the output of the shell script command.
+
+## D. Configure Snort
+---
+In this section we use Systems manager Automation Document to update the local configuration of Snort on the sensor.
+The automation copies the configuration files from our central repository whene the files are under version control.  It then deploys the files on the local host.
+
+---
+![Automation](images/automation.png "Automation")
+
+---
+1. In the AWS Console, open the **System Manager** console.
+2. Select **Documents** in the menu in the left hand window.
+3. Click on the **Owned By Me** tab in the right hand window.
+4. Click on the document with the name beginning with **SnortStack-SnortConfigure-*uniqueid***.
+5. Click on the **Execute Automation** button.
+6. In the Execute automatyion document page, scroll down to the **Input Parameters** section and click on the slider button **show interactive instance picker**.  Select the instance names **SnortSensor**.
+7. Click on the **execute** button.
+8. You will now see the execution detail page.  This shows you the execution ID for each step.  Click on the link for one of these id's so that you can view the output of the shell script command.
+
+## E. Install Kinesis agent
+---
+In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") install the Kinesis agent.  Kinesis streams are a tool that allows lots of independant devices or services to send messages to a central aggregation point where we can store them for analyticis purposes.  In our case we are sending all the Snort alerts and packet captures to Kinesis Firehose, which in turn stores the data in S3 buckets for later use.
+
+---
+![Kinesis Data Firehose](KinesisFirehose.jpg "Kinesis Data Firehose")
 
 ---
 1. In the AWS Console, open the **System Manager** console.
@@ -101,15 +140,15 @@ Now that we have the installation and configuration packages installed locally w
 3. Click on the **Start Session** button in the right hand window.
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
-6. Navigate to the ssm-user home directory and run the following commands
+6. Execute the following steps to set up the Kinesis agent.
 ```bash
-cd ~
-cd aws-reinvent-2019-builders-session-opn215
-cd scripts
-chmod +x *.*
-./snort-install.sh
-./snort-configure.sh
+sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/jdk-8u231-linux-x64.rpm -O /var/tmp/jdk-8u231-linux-x64.rpm
+sudo yum install -y /var/tmp/jdk-8u231-linux-x64.rpm
+sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
+sudo chkconfig aws-kinesis-agent on
+
 ```
+7. **Whoohoo!**  You now have your Snort sensor ready to send data to AWS.  thsi work really well when you have a large number of Snort sensors, both on-premisis or in the Cloud and you need a scalable way of storing all the alert information and packets for analytics.
 
 ## E. Validate Snort configuration
 ---

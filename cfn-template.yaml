@@ -360,7 +360,7 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties: {}
 
-  SnortInstallAndConfigure:
+  SnortInstall:
     Type: 'AWS::SSM::Document'
     Properties:
       DocumentType: Automation
@@ -427,4 +427,51 @@ Resources:
               InstanceIds:
                 - '{{InstanceId}}'
             description: Installs the community rules package.
+            onFailure: Continue
+          - name: CreateDirectories
+            action: 'aws:runCommand'
+            inputs:
+              DocumentName: AWS-RunShellScript
+              Parameters:
+                commands:
+                  - >-
+                    sudo mkdir /usr/local/lib/snort_dynamicrules
+                  - sudo chown -R snort:snort /usr/local/lib/snort_dynamicrules
+                  - sudo chmod 2775 /var/log/snort
+                  - sudo chmod u+s /var/log/snort
+              InstanceIds:
+                - '{{InstanceId}}'
+            description: Sets directory permissions and create directories.
+            onFailure: Continue
+
+  SnortConfigure:
+    Type: 'AWS::SSM::Document'
+    Properties:
+      DocumentType: Automation
+      Content:
+        description: >-
+          # SnortInstallAndConfigure
+
+          This document sets up all the custom configuration for snort.  It pulls the files from GitHub.
+        schemaVersion: '0.3'
+        parameters:
+          InstanceId: 
+            type: StringList
+        mainSteps:
+          - name: ConfigureSnort
+            action: 'aws:runCommand'
+            inputs:
+              DocumentName: AWS-RunShellScript
+              InstanceIds:
+                - '{{InstanceId}}'
+              Parameters:
+                commands: 
+                  - >-
+                    sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/rc.d/init.d/snortd -O /etc/rc.d/init.d/snortd
+                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/snort.conf -O /etc/snort/snort.conf
+                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/sysconfig/snort -O /etc/sysconfig/snort
+                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/rules/local.rules -O /etc/snort/rules/local.rules
+                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/rules/white_list.rules -O /etc/snort/rules/white_list.rules
+                  - sudo wget -nv https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215/blob/mainline/etc/snort/rules/black_list.rules -O /etc/snort/rules/black_list.rules
+            description: Update all the Snort configuration files from GitHub repo.
             onFailure: Continue
