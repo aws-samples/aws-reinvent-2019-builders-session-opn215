@@ -223,7 +223,7 @@ We now have a large volume of Snort alert data and packet data arriving in our S
 
 ---
 1. In thwe AWS Console, open the **S3** service.
-2. Copy the name of he S3 buckect that starts with **SnortStack-AthenaQueryResultsBucket**.  Also copy the anme of the bucket beginning with **aws-snort-demo-snortalertdata**.  You will need these later.
+2. Copy the name of he S3 bucket that starts with **SnortStack-AthenaQueryResultsBucket**.  Also copy the anme of the bucket beginning with **aws-snort-demo-snortalertdata**.  You will need these later.
 3. In the AWS Console, open the **Athena** console.
 4. Click on the **Get Started** link.
 5. Click on the link to **set up a query result location in Amazon S3**. 
@@ -238,8 +238,8 @@ We now have a large volume of Snort alert data and packet data arriving in our S
 timestamp string, sig_generator string, sig_id string, sig_rev string, msg string, proto string, src string, srcport string, dst string, dstport string, ethsrc string, ethdst string, ethlen string, tcpflags string, tcpseq string, tcpack string, tcplen string, tcpwindow string, ttl string, tos string, id string, dgmlen string, iplen string, icmptype string, icmpcode string, icmpid string, icmpseq string
 ```
 13. Click the **next** button to continue.  You will now see the **configure partitions** page.
-14. You will now see the **configure partitions** page.  Click on the button to ***create table***.
-15.  You will be returned to the Athena query console.  Select the **SnortAlertData** databasein the left have drop down list.  Click on the **run query** button to create the table.  You shoudl see a **query sucessful** message in the **results** window.
+14. You will now see the **configure partitions** page.  Click on the button to **create table**.
+15.  You will be returned to the Athena query console.  You should see a **query sucessful** message in the **results** window.
 16. Run a simple query on your alert data as shown below:
 ```sql
 select * from snort_alerts limit 1000
@@ -258,13 +258,13 @@ As you can see, its easy to get up and runing with Athena for ad-hoc queries of 
 1. In thwe AWS Console, open the **Quicksight** service.
 2. The first time you use this you will be asked to sign up.  Click on the **sign up for quicksight** button to continue.
 3. You will see the licensing options, leatf the defaul of **Enterprise** and click the **continue** button.
-4. Type <yourname>-aws-snort-demo-quicksight into the **Quicksight Account name** field
-5. Type your email address into the **email** filed and click on the **finish** button.
+4. Type ***yourname*-aws-snort-demo-quicksight** into the **Quicksight Account name** field
+5. Type your email address into the **email** field and click on the **finish** button.
 6. After a short time you shoudl see the **Congratulations** page.  Click on the **go to Amazon quicksight** button to continue.
-7. You will now see the Quciksight home page.  Click on the **new analysis** button to continue.
+7. You will now see the Quicksight home page.  Click on the **new analysis** button to continue.
 8. You will now see some default data sets.  Click on the **new data set** button to continue.
 9. The **Create a Data Set** page will open.  Select the **Athena** button and type in the name **SnortAlertDataSource**.  Click on the **Create Data Source** button to continue.
-10. You will now see the **choose your table** page.  Select **snortalertdata** from the **database** list.  Select **snort_alert** from the **table** list.  Click on the **select** button to continue.
+10. You will now see the **choose your table** page.  Select **snortalertdata** from the **database** list.  Select **snort_alerts** from the **table** list.  Click on the **select** button to continue.
 11. The **finish data set creation** page will be displayed.  Leave the default seting to import SPICE and click on the **visualise** button.
 12. You may see no data at first, so click on the refresh import link to continue.  If you see a permission error then see the troubleshooting section below.  Whern the data appears int he SPICE page, select the save and visualise button to return to the visualization page.
 13. In the **feilds list**, select **src** and **proto**.  Leave the **visual type** as **auto**.  You should noe have a barf chart showign you the top talkers to your server by protocol.
@@ -273,7 +273,7 @@ As you can see, its easy to get up and runing with Athena for ad-hoc queries of 
 ---
 ### Common issues
 #### Insufficient Permissions
-Quicksight may not have all the permissions required to access the Snort data.  This may show up asn an error when you try to load the data set.  To resolve this, select the profile in the top right corner > manage quicksight > security & permissions.  Click ont eh button to add or remove Quicksight access to AWS services.  Untick the tickbox for Atehna, then tick it again.  When asked to set up access for S3 buckets, select the buckets you created for the snort aleert data and the athena query data.  Click on the update button to finish. 
+Quicksight may not have all the permissions required to access the Snort data.  This may show up as an error when you try to load the data set.  To resolve this, select the profile in the top right corner > manage quicksight > security & permissions.  Click on the button to add or remove Quicksight access to AWS services.  Untick the tickbox for Athena, then tick it again.  When asked to set up access for S3 buckets, select the buckets you created for the snort alert data and the athena query data.  Click on the update button to finish. You will return to the SPICE screen, select the **Save & Visualise** button.
 
 ---
 
