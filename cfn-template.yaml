@@ -363,6 +363,7 @@ Resources:
   SnortInstallAndConfigure:
     Type: 'AWS::SSM::Document'
     Properties:
+      DocumentType: Automation
       Content:
         description: >-
           # SnortInstallAndConfigure
