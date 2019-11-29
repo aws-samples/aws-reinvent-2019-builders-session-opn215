@@ -85,9 +85,9 @@ git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.
 8. Scroll down to the **Targets** section.
 9. Select the raiod button for **Specify instance tags**.
 10. Type the following values into the feilds for the tags and then click on the **Add** button.
-| Tag Key | Value |
-| --- | --- |
-| SSMType | SnortSensor |
+ Tag Key | Value 
+ --- | --- 
+ SSMType | SnortSensor 
 11. Scroll down to the **Output options** section.  Ensure that the **Enable writing to S3 bucket** tickbox is ticked and the **Choose a bucket name from the list** radio button is selected. 
 12. Click on the drop down list and select the bucket beginning with the name **SnortStack-ssmloggingbucket-*uniqueid***.  
 13. Click on the **run** button to execute the command.
@@ -140,7 +140,7 @@ The automation copies the configuration files from our central repository whene 
 In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") install the Kinesis agent.  Kinesis streams are a tool that allows lots of independant devices or services to send messages to a central aggregation point where we can store them for analyticis purposes.  In our case we are sending all the Snort alerts and packet captures to Kinesis Firehose, which in turn stores the data in S3 buckets for later use.
 
 ---
-![Kinesis Data Firehose](KinesisFirehose.png "Kinesis Data Firehose")
+![Kinesis Data Firehose](images/KinesisFirehose.png "Kinesis Data Firehose")
 
 ---
 1. In the AWS Console, open the **System Manager** console.
@@ -211,13 +211,16 @@ com.amazon.kinesis.streaming.agent.tailing.AsyncPublisher [ERROR] AsyncPublisher
 ```
 ---
 ### POINT TO NOTE
-The local.rules file that is used for this demo is VERY verbose.  Basically, its recording every network packet the Snort Sensor sees arriving on the host.  Thats a lot of packets!  To make this more sensible try forking the repo and creating your own local.rules file.  For the purposes of the demo its good to see the scalability of Snort, Kinesis, Athena and Quicksight in action but that local.rules files does not represent what you woudl normally do in a production environment.
+The local.rules file that is used for this demo is VERY verbose.  Basically, its recording every network packet the Snort Sensor sees arriving on the host.  Thats a lot of packets!  To make this more sensible try forking the repo and creating your own local.rules file.  For the purposes of the demo its good to see the scalability of Snort, Kinesis, Athena and Quicksight in action but that local.rules files does not represent what you would normally do in a production environment.
 
 ---
 
 ## G. Query Snort data with Athena
 ---
 We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
+
+---
+![Athena](images/Athena.png "Athena")
 
 ---
 1. In thwe AWS Console, open the **S3** service.
@@ -250,6 +253,9 @@ select * from snort_alerts limit 1000
 As you can see, its easy to get up and runing with Athena for ad-hoc queries of our Snort data.  Next, we will set up some visualisations for our data using Quicksight.
 
 ---
+![Quicksight](images/Quicksight.png "Quicksight")
+
+---
 1. In thwe AWS Console, open the **Quicksight** service.
 2. The first time you use this you will be asked to sign up.  Click on the **sign up for quicksight** button to continue.
 3. You will see the licensing options, leatf the defaul of **Enterprise** and click the **continue** button.
@@ -275,7 +281,9 @@ Quicksight may not have all the permissions required to access the Snort data.  
 ## Y. What next?
 This lab is a basis for further exploration on the subject of how to get insights from your NIDS systems.  It highlighted the strenghts of using automation tools for deployign and managig Snort Sensors.  We explored how to run simple SQL querieis and generate visual reports.  Movign forward you can explore further automation ideas:
 * Implement a CI/CD piepline for Snort configuration management using CodePipeline
-* Anomaly detection usign Sagemaker
+* Anomaly detection using Sagemaker
+* Packet analysis using tcpdump tools or Kali Linux
+* Leverage the Scapy library for python and use the traffic generator to test Snort rules
 
 ## Z. Delete the stack
 1. In the AWS console, open the S3 console.
