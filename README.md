@@ -79,7 +79,7 @@ In this section we will copy the artifacts we need to complete the installation 
 6. Scroll down until you see the **Command Parameters** feild.  Copy and past the following commands into that feild.
 ```bash
 sudo yum install -y git
-git clone https://github.com/waymousa/aws-reinvent-2019-builders-session-opn215.git
+git clone https://github.com/aws-samples/aws-reinvent-2019-builders-session-opn215
 ```
 7. In the working directory feild, type in **/home/ssm-user**.
 8. Scroll down to the **Targets** section.
