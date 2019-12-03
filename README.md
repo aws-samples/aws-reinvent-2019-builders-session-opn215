@@ -150,7 +150,7 @@ In this section we will use ![Session Manager](https://docs.aws.amazon.com/syste
 3. Click on the **Start Session** button in the right hand window.
 4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
 5. Click on the **start session** button.
-6. Execute the following steps to set up the Kinesis agent.
+6. Execute the following steps to set up the Kinesis agent.  Execute command individually, do not copy and paste all the commands at once.
 ```bash
 sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/jdk-8u231-linux-x64.rpm -O /var/tmp/jdk-8u231-linux-x64.rpm
 sudo yum install -y /var/tmp/jdk-8u231-linux-x64.rpm
@@ -223,7 +223,7 @@ We now have a large volume of Snort alert data and packet data arriving in our S
 
 ---
 1. In thwe AWS Console, open the **S3** service.
-2. Copy the name of he S3 bucket that starts with **SnortStack-AthenaQueryResultsBucket**.  Also copy the anme of the bucket beginning with **aws-snort-demo-snortalertdata**.  You will need these later.
+2. Copy the name of the S3 bucket that starts with **SnortStack-AthenaQueryResultsBucket**.  Also copy the name of the bucket beginning with **SnortStack-snortalertdata**.  You will need these later.
 3. In the AWS Console, open the **Athena** console.
 4. Click on the **Get Started** link.
 5. Click on the link to **set up a query result location in Amazon S3**. 
