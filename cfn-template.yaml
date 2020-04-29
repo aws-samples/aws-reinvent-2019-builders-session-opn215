@@ -118,6 +118,70 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref SN1
 
+  SnortImageRecipe:
+    Type: AWS::ImageBuilder::ImageRecipe
+    Properties:
+      ParentImage: !Ref LinuxImageId
+      Name: SnortImageRecipe
+      Version: "1.0.0"
+      Components: 
+        - !Ref EPELRepoComponent
+        - !Ref DAQComponent
+
+  EPELRepoComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: EPELRepoComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Data: |
+        name: EPELRepoDoc - InlineData
+        description: This is the EPEL Repo installation Document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildEPELRepo
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          - name: validate
+            steps:
+              - name ValidateEPELRepo
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - sudo rpm -qa | grep epel
+
+    DAQComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: EPELRepoComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Data: |
+        name: DAQDoc - InlineData
+        description: This is the DAQ installation Document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - sudo yum install -y https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
+          - name: validate
+            steps:
+              - name: ValidateDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - rpm -qa | grep daq
+
   SnortSensor:
     Type: 'AWS::EC2::Instance'
     Properties:
