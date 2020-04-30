@@ -125,9 +125,9 @@ Resources:
       Name: SnortImageRecipe
       Version: "1.0.0"
       Components: 
-        - !Ref EPELRepoComponent
-        - !Ref DAQComponent
-        - !Ref SnortComponent
+        - ComponentArn: !Ref EPELRepoComponent
+          ComponentArn: !Ref DAQComponent
+          ComponentArn: !Ref SnortComponent
 
   EPELRepoComponent:
     Type: AWS::ImageBuilder::Component
@@ -150,7 +150,7 @@ Resources:
                     - sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
           - name: validate
             steps:
-              - name ValidateEPELRepo
+              - name: ValidateEPELrpm
                 action: ExecuteBash
                 inputs:
                   commands:
@@ -218,32 +218,75 @@ Resources:
                 inputs:
                   commands:
                     - rpm -qa | grep snort
-
-  SnortSensor:
-    Type: 'AWS::EC2::Instance'
+  
+  SnortInfrastructureConfiguration:
+    Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
-      NetworkInterfaces:
-        - SubnetId: !Ref SN1
-          DeviceIndex: 0
-          GroupSet: 
-            - !Ref SG1
-      InstanceType: t2.medium
-      ImageId: !Ref LinuxImageId
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          yum update -y
-      Tags: 
-        - 
-          Key: "Name"
-          Value: "SnortSensor"
-        - 
-          Key: "SSMType"
-          Value: "SnortSensor"
-        - 
-          Key: "SSMManaged"
-          Value: "True"
-      IamInstanceProfile: !Ref SSMInstanceProfile
+      InstanceProfileName: !Ref SSMInstanceProfile
+#      Description: "Infrastructure configuration for a Snort sensor"
+      Name: SnortInfrastructureConfiguration
+#      InstanceTypes:
+#        - t2.medium
+#      SecurityGroupIds:
+#        - !Ref SG1
+#      SubnetId: !Ref SN1
+#      Tags: 
+#        - 
+#          Key: "Name"
+#          Value: "SnortSensor"
+#        - 
+#          Key: "SSMType"
+#          Value: "SnortSensor"
+#        - 
+#          Key: "SSMManaged"
+#          Value: "True"
+#      Logging:
+#        S3Logs: 
+#          S3BucketName: !Ref SSMLoggingBucket
+#          S3KeyPrefix: SnortImageBuilder
+
+  SnortDistributionConfiguration:
+    Type: AWS::ImageBuilder::DistributionConfiguration
+    Properties:
+      Name: SnortDistributionConfiguration
+      Description: "Snort Sensor image Builder Distribution configuration."
+      Distributions:
+        -  Region: us-east-1
+
+  SnortImagePipeline:
+    Type: AWS::ImageBuilder::ImagePipeline
+    Properties:
+      ImageRecipeArn: !Ref SnortImageRecipe
+      InfrastructureConfigurationArn: !Ref SnortInfrastructureConfiguration
+      DistributionConfigurationArn: !Ref SnortDistributionConfiguration
+      Name: SnortImagePipeline
+      Description: "Image Pipeline to build a Snort Sensor."
+
+#  SnortSensor:
+#    Type: 'AWS::EC2::Instance'
+#    Properties:
+#      NetworkInterfaces:
+#        - SubnetId: !Ref SN1
+#          DeviceIndex: 0
+#          GroupSet: 
+#            - !Ref SG1
+#      InstanceType: t2.medium
+#      ImageId: !Ref LinuxImageId
+#      UserData:
+#        Fn::Base64: !Sub |
+#          #!/bin/bash -xe
+#          yum update -y
+#      Tags: 
+#        - 
+#          Key: "Name"
+#          Value: "SnortSensor"
+#        - 
+#          Key: "SSMType"
+#          Value: "SnortSensor"
+#        - 
+#          Key: "SSMManaged"
+#          Value: "True"
+#      IamInstanceProfile: !Ref SSMInstanceProfile
 
   TrafficGenerator:
     Type: 'AWS::EC2::Instance'
@@ -374,7 +417,6 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess
-        - arn:aws:iam::aws:policy/aws-service-role/AWSServiceRoleForImageBuilder
 
   SSMEndPoint:
     Type: AWS::EC2::VPCEndpoint
