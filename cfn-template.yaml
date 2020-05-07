@@ -126,8 +126,8 @@ Resources:
       Version: "1.0.0"
       Components: 
         - ComponentArn: !Ref EPELRepoComponent
-          ComponentArn: !Ref DAQComponent
-          ComponentArn: !Ref SnortComponent
+        - ComponentArn: !Ref DAQComponent
+        - ComponentArn: !Ref SnortComponent
 
   EPELRepoComponent:
     Type: AWS::ImageBuilder::Component
