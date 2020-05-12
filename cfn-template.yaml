@@ -46,18 +46,27 @@ Resources:
       CidrBlock: !Ref VPC1CidrBlock
       EnableDnsSupport: 'true'
       EnableDnsHostnames: 'true'
+      Tags:
+        - Key: Name
+          Value: snort-vpc
   
   SN1:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref VPC1
       CidrBlock: !Ref SN1CidrBlock
+      Tags:
+        - Key: Name
+          Value: snort-prv-sn
 
   SN2:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref VPC1
       CidrBlock: !Ref SN2CidrBlock
+      Tags:
+        - Key: Name
+          Value: snort-pub-sn
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -85,6 +94,9 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC1
+      Tags:
+        - Key: Name
+          Value: snort-pub-rt
   
   DefaultPublicRoute:
     Type: AWS::EC2::Route
@@ -104,6 +116,9 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC1
+      Tags:
+        - Key: Name
+          Value: snort-prv-rt
   
   DefaultPrivateRoute:
     Type: AWS::EC2::Route
@@ -121,7 +136,7 @@ Resources:
   SnortImageRecipe:
     Type: AWS::ImageBuilder::ImageRecipe
     Properties:
-      ParentImage: !Ref LinuxImageId
+      ParentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2-x86/2020.4.7
       Name: SnortImageRecipe
       Version: "1.0.0"
       Components: 
@@ -154,7 +169,14 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - sudo rpm -qa | grep epel
+                    - echo "ValidateEPLrpm"
+          - name: test
+            steps:
+              - name: TestEPELrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestEPLrpm"
 
   DAQComponent:
     Type: AWS::ImageBuilder::Component
@@ -181,7 +203,14 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - rpm -qa | grep daq
+                    - echo "ValidateDAQrpm"
+          - name: test
+            steps:
+              - name: TestDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestDAQrpm"
 
   SnortComponent:
     Type: AWS::ImageBuilder::Component
@@ -217,17 +246,32 @@ Resources:
                 action: ExecuteBash
                 inputs:
                   commands:
-                    - rpm -qa | grep snort
+                    - echo "ValidateSnortrpm"
+          - name: test
+            steps:
+              - name: TestSnortrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestSnortrpm"
   
   SnortInfrastructureConfiguration:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
-      InstanceProfileName: !Ref SSMInstanceProfile
-#      Description: "Infrastructure configuration for a Snort sensor"
+      InstanceProfileName: SSMInstanceProfile
+      Description: "Infrastructure configuration for a Snort sensor"
       Name: SnortInfrastructureConfiguration
-#      InstanceTypes:
+      InstanceTypes: []
+      SecurityGroupIds: []
+      Tags:
+        Name: "SnortSensor"
+        SSMType: "SnortSensor"
+        SSMManaged: "True"
+      TerminateInstanceOnFailure: true
+    DependsOn: SSMInstanceProfile
+     
 #        - t2.medium
-#      SecurityGroupIds:
+#      SecurityGroupIds: {}
 #        - !Ref SG1
 #      SubnetId: !Ref SN1
 #      Tags: 
@@ -251,7 +295,9 @@ Resources:
       Name: SnortDistributionConfiguration
       Description: "Snort Sensor image Builder Distribution configuration."
       Distributions:
-        -  Region: us-east-1
+        - AmiDistributionConfiguration:
+            Name: SnortImage {{imagebuilder:buildDate}}
+          Region: us-east-1
 
   SnortImagePipeline:
     Type: AWS::ImageBuilder::ImagePipeline
@@ -417,6 +463,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess
+        - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilder
 
   SSMEndPoint:
     Type: AWS::EC2::VPCEndpoint
@@ -496,6 +543,9 @@ Resources:
         FromPort: -1
         ToPort: -1
         CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: snort-sg
   
   SSMLoggingBucket:
     Type: 'AWS::S3::Bucket'

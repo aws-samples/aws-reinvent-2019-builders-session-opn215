@@ -1,0 +1,141 @@
+
+imageRecipeSummaryList:
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:image-recipe/sam-recipe/1.0.0
+  dateCreated: '2020-05-07T14:25:40.258Z'
+  name: sam-recipe
+  owner: '432629475712'
+  parentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2-x86/2020.4.7
+  platform: Linux
+  tags: {}
+
+  imagePipelineList:
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:image-pipeline/sam-pipeline
+  dateCreated: '2020-05-07T14:27:54.162Z'
+  dateUpdated: '2020-05-07T14:27:54.162Z'
+  distributionConfigurationArn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/sam-pipeline-distributionconfiguration-6454574a96f4
+  imageRecipeArn: arn:aws:imagebuilder:us-east-1:432629475712:image-recipe/sam-recipe/1.0.0
+  imageTestsConfiguration:
+    imageTestsEnabled: true
+    timeoutMinutes: 720
+  infrastructureConfigurationArn: arn:aws:imagebuilder:us-east-1:432629475712:infrastructure-configuration/sam-pipeline-infrastructureconfiguration-1e252600474e
+  name: sam-pipeline
+  platform: Linux
+  status: ENABLED
+  tags: {}
+
+  distributionConfigurationSummaryList:
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/sam-pipeline-distributionconfiguration-6454574a96f4
+  dateCreated: '2020-05-07T14:27:53.122Z'
+  name: sam-pipeline-distributionConfiguration-6454574a96f4
+  tags: {}
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/snortdistributionconfiguration
+  dateCreated: '2020-05-07T13:33:56.620Z'
+  description: Snort Sensor image Builder Distribution configuration.
+  name: SnortDistributionConfiguration
+  tags: {}
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/test-2-distributionconfiguration-f131d4fca275
+  dateCreated: '2020-05-07T14:07:43.324Z'
+  name: test-2-distributionConfiguration-f131d4fca275
+  tags: {}
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/test-distributionconfiguration-671b4e534305
+  dateCreated: '2020-05-07T13:46:56.519Z'
+  name: Test-distributionConfiguration-671b4e534305
+  tags: {}
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/test-distributionconfiguration-890a91cfe7a6
+  dateCreated: '2020-05-07T10:24:08.604Z'
+  name: test-distributionConfiguration-890a91cfe7a6
+  tags: {}
+
+  componentVersionList:
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:component/epelrepocomponent/1.0.0
+  dateCreated: '2020-05-07T14:24:13.396Z'
+  description: Install EPELRepoComponent
+  name: EPELRepoComponent
+  owner: '432629475712'
+  platform: Linux
+  type: BUILD
+  version: 1.0.0
+- arn: arn:aws:imagebuilder:us-east-1:432629475712:component/epelrepotest/1.0.0
+  dateCreated: '2020-05-07T14:25:23.893Z'
+  description: EPELRepoComponent Test
+  name: EPELRepoTest
+  owner: '432629475712'
+  platform: Linux
+  type: TEST
+  version: 1.0.0
+requestId: 8b13b3a0-f5ac-4db7-a051-697bf7e6800e
+
+imagePipeline:
+  arn: arn:aws:imagebuilder:us-east-1:432629475712:image-pipeline/sam-pipeline
+  dateCreated: '2020-05-07T14:27:54.162Z'
+  dateLastRun: '2020-05-07T14:28:02.611Z'
+  dateUpdated: '2020-05-07T14:27:54.162Z'
+  distributionConfigurationArn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/sam-pipeline-distributionconfiguration-6454574a96f4
+  imageRecipeArn: arn:aws:imagebuildeqr:us-east-1:432629475712:image-recipe/sam-recipe/1.0.0
+  imageTestsConfiguration:
+    imageTestsEnabled: true
+    timeoutMinutes: 720
+  infrastructureConfigurationArn: arn:aws:imagebuilder:us-east-1:432629475712:infrastructure-configuration/sam-pipeline-infrastructureconfiguration-1e252600474e
+  name: sam-pipeline
+  platform: Linux
+  status: ENABLED
+  tags: {}
+requestId: f6b335ec-43e7-45f9-9c65-991658c452d3
+
+distributionConfiguration:
+  arn: arn:aws:imagebuilder:us-east-1:432629475712:distribution-configuration/sam-pipeline-distributionconfiguration-6454574a96f4
+  dateCreated: '2020-05-07T14:27:53.122Z'
+  distributions:
+  - amiDistributionConfiguration:
+      name: sams-ami {{imagebuilder:buildDate}}
+    region: us-east-1
+  name: sam-pipeline-distributionConfiguration-6454574a96f4
+  tags: {}
+
+imageRecipe:
+  arn: arn:aws:imagebuilder:us-east-1:432629475712:image-recipe/sam-recipe/1.0.0
+  components:
+  - componentArn: arn:aws:imagebuilder:us-east-1:432629475712:component/epelrepotest/1.0.0/1
+  - componentArn: arn:aws:imagebuilder:us-east-1:432629475712:component/epelrepocomponent/1.0.0/1
+  dateCreated: '2020-05-07T14:25:40.258Z'
+  description: Sam's recipie
+  name: sam-recipe
+  owner: '432629475712'
+  parentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2-x86/2020.4.7
+  platform: Linux
+  tags: {}
+  version: 1.0.0
+requestId: 117c161d-635b-4929-acf1-5a19aefd18ad
+
+infrastructureConfiguration:
+  arn: arn:aws:imagebuilder:us-east-1:432629475712:infrastructure-configuration/sam-pipeline-infrastructureconfiguration-1e252600474e
+  dateCreated: '2020-05-07T14:27:52.287Z'
+  instanceProfileName: SSMInstanceProfile
+  instanceTypes:
+  - t2.medium
+  name: sam-pipeline-infrastructureConfiguration-1e252600474e
+  securityGroupIds: []
+  tags: {}
+  terminateInstanceOnFailure: true
+
+  component:
+  arn: arn:aws:imagebuilder:us-east-1:432629475712:component/epelrepocomponent/1.0.0/1
+  data: "name: EPELRepoComponentTestingDocument\ndescription: This is EPELRepoComponent
+    testing document.\nschemaVersion: 1.0\n\nphases:\n  - name: build\n    steps:\n
+    \     - name: EPELRepoComponentValidateStep\n        action: ExecuteBash\n        inputs:\n
+    \         commands:\n            - echo \"sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm\"\n\n
+    \ - name: validate\n    steps:\n      - name: EPELRepoComponentValicateStep\n
+    \       action: ExecuteBash\n        inputs:\n          commands:\n            -
+    echo \"Hello World! Validate.\"\n\n  - name: test\n    steps:\n      - name: EPELRepoComponentTestStep\n
+    \       action: ExecuteBash\n        inputs:\n          commands:\n            -
+    echo \"Hello World! Test.\"\n"
+  dateCreated: '2020-05-07T14:24:13.396Z'
+  description: Install EPELRepoComponent
+  encrypted: true
+  name: EPELRepoComponent
+  owner: '432629475712'
+  platform: Linux
+  tags: {}
+  type: BUILD
+  version: 1.0.0
+requestId: 2e230ed2-79c5-48cb-9e53-dc539f1d78bf
