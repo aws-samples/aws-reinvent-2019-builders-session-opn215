@@ -273,7 +273,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess
-        - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilder
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
 
   SSMEndPoint:
     Type: AWS::EC2::VPCEndpoint
