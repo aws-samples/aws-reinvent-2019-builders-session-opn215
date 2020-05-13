@@ -33,7 +33,7 @@ Things you will explore include:
 In this section we will use CloudFormation to deploy EC2 Image Pipeline stack.  This includes all the components for a Snort Sensor recipe.  
 
 ---
-![EC2 Image Builder](images/EC2 Image Builder.png "EC2 Image Builder")
+![EC2 Image Builder](images/EC2ImageBuilder.png "EC2 Image Builder")
 
 ---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
