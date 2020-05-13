@@ -50,8 +50,15 @@ In this section we will run the EC2 Image Builder Pipline to create an AMI that 
 2. Select **Image pipelines** in the menu in the left hand window.
 3. Select **SnortImagePipeline** in the right hand window.
 4. Click on the **Actions** drop down and select **run pipeline** from the menu.
+5. The Pipeline will now generate the AMI to be used to create our Snort Sensor.  After a short time the pipeline will complete.  If your Pipeline failes see the Points to note section below.
+6. Navigate to the **EC2** service page and select **AMIs** from the **Images** section.  Verify that the filter dropdown is set to **Owned by Me**.
+7. You should see an AMI named **SnortImage-uniqueid**.  Select this image and then copy the **AMI ID** listed in the **Details** tab.  Save this AMI ID value because you will need it for the next step.
+8.  **Whoohoo!** you used EC2 Image Builder to create a Linux image with Snort installed.
 
-The Pipeline will now generate the AMI to be used to create our Snort Sensor.  This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this ![on-prem-link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
+---
+### Points to note:
+This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this ![on-prem-link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
+---
 
 ## C. Deploy the Snort stack
 ---
@@ -62,6 +69,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 
 ---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
+2. Navigate to the **EC2** console.   
 2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
 3. In the **Specify Template** page, navigate to the **specify a template** section and select the option to **upload a template file**.
 4. Select the **choose file** button, navigate to te directory where you downloaded the package and select the **cfn-template.yaml** file, then click on the **open** button.  Click on the **next** button to continue.
@@ -69,7 +77,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review SnortStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
-## B. Open a shell session to the Snort Sensor
+## D. Open a shell session to the Snort Sensor
 ---
 In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
 
@@ -88,7 +96,7 @@ cat /var/log/cloud-init-output.log | more
 ```
 7. **Whoohoo!**  You have not access you new Linux instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation ![here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
 
-## C. Download tools package
+## E. Download tools package
 ---
 In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager ![Run Command](https://docs.aws.amazon.com/systems-manager/latest/userguide/execute-remote-commands.html "Run Command") feature which allows you to apply updates across multiple instances based on tags or instance ids.
 
@@ -123,26 +131,7 @@ git clone https://github.com/aws-samples/aws-reinvent-2019-builders-session-opn2
 17. Validate the commands ran according to plan by examining the stderr and stdout.  This is a simple example but to get better information use a more comprehensive shell script with proper debug and exception handling.  You can also check the package is in the ssm-users home directory by accessing the instance using **Session Manager**.
 18.  **Whoohoo!**  You just ran a set of commands across some instance based on their tag name.  By using this technique you can run commands to update all your Snort sensors in batch mode, including the ones in your on-premisis network.
 
-## D. Install Snort
----
-In this section we use Systems manager Automation Document to install the Snort packages and deploy the common rules set.
-An Automation document is a way of creating a multi-step deployment that triggers the Run Command with a script for parameters.  In this case each step of a Snort installation is executed seperately using a remote shell script on the target hosts.
-
----
-![Automation](images/automation.png "Automation")
-
----
-1. In the AWS Console, open the **System Manager** console.  Also, nake sure your region is us-east-1.
-2. Select **Documents** in the menu in the left hand window.
-3. Click on the **Owned By Me** tab in the right hand window.
-4. Click on the document with the name beginning with **SnortStack-SnortInstall-*uniqueid***.
-5. Click on the **Execute Automation** button.
-6. In the Execute automatyion document page, scroll down to the **Input Parameters** section and click on the slider button **show interactive instance picker**.  Select the instance names **SnortSensor**.
-7. Click on the **execute** button.
-8. You will now see the execution detail page.  This shows you the execution ID for each step.  Click on the link for one of these id's so that you can view the output of the shell script command.
-9. **Whoohoo!** You just ran a complete installation in a few clicks!  
-
-## D. Configure Snort
+## F. Configure Snort
 ---
 In this section we use Systems manager Automation Document to update the local configuration of Snort on the sensor.
 The automation copies the configuration files from our central repository whene the files are under version control.  It then deploys the files on the local host.  this is a great way to allow you to have controlled change and automated deplyment for your Snort configuration and rules.
@@ -161,7 +150,7 @@ The automation copies the configuration files from our central repository whene 
 8. You will now see the execution detail page.  This shows you the execution ID for each step.  Click on the link for one of these id's so that you can view the output of the shell script command.
 9. **Whoohoo!** you just updated your Snort configuration using your repo as a source control!  This make the task of rolling out rules updates must simpler.  You can now trigger rules refreshes using automation from events. For example, if you use CodePipeline to stoere your Snort rules, you can now trigger a rule refresh on all your sensors as part of a deployment pipleine.
 
-## E. Install Kinesis agent
+## G. Install Kinesis agent
 ---
 In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") install the Kinesis agent.  Kinesis streams are a tool that allows lots of independant devices or services to send messages to a central aggregation point where we can store them for analyticis purposes.  In our case we are sending all the Snort alerts and packet captures to Kinesis Firehose, which in turn stores the data in S3 buckets for later use.
 
@@ -183,7 +172,7 @@ sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/aws-kinesis
 ```
 7. **Whoohoo!**  You now have your Snort sensor ready to send data to AWS.  This work really well when you have a large number of Snort sensors, both on-premisis or in the Cloud and you need a scalable way of storing all the alert information and packets for analytics.
 
-## E. Validate Snort configuration
+## H. Validate Snort configuration
 ---
 Before we give our Snort server a clean bill of health we need to check that configuration is working ok.  Use the Session Manager to open a shell on the remote host and run the snort configuration check.
 
@@ -198,7 +187,7 @@ Before we give our Snort server a clean bill of health we need to check that con
 sudo snort -T -c /etc/snort/snort.conf
 ```
 
-## E. Start Snort and Kinesis agents
+## I. Start Snort and Kinesis agents
 1. In the AWS Console, open the *System Manager* console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
@@ -210,7 +199,7 @@ sudo service aws-kinesis-agent start
 sudo service snortd start
 ```
 
-## F. Validate Snort and Kinesis are running
+## J. Validate Snort and Kinesis are running
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
@@ -236,7 +225,7 @@ The local.rules file that is used for this demo is VERY verbose.  Basically, its
 
 ---
 
-## G. Query Snort data with Athena
+## K. Query Snort data with Athena
 ---
 We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
 
@@ -269,7 +258,7 @@ select * from snort_alerts limit 1000
 17. Save a copy of your query bu clicking on the **Save as** button.  Name your query **last-1k-snort-alerts** and add a description.  Click on the **save** button to continue.  Click on the **Saved queries** tab to check your query is listed.
 17.  **Whoohoo!**  You can now perform adhoc queries on your Snort alert data using Athena!  Try out some different sample queries to see what you can discover about the network traffic hitting your server.
 
-## H. Visualise Snort data in Quicksight
+## L. Visualise Snort data in Quicksight
 ---
 As you can see, its easy to get up and runing with Athena for ad-hoc queries of our Snort data.  Next, we will set up some visualisations for our data using Quicksight.
 
@@ -308,6 +297,7 @@ This lab is a basis for further exploration on the subject of how to get insight
 
 ## Z. Delete the stack
 1. In the AWS console, open the S3 console.
-2. Select and delete the buckets with names beginning with **SnortStack**.
+2. Select and empty the buckets with names beginning with **SnortStack** and **ImageBuilderStack**.
 3. In the AWS console, open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
-4. Select the **Stacks** menu item in the side window.  Select the stack named **SnortStack**.  Click on the **delete** button.
+4. Select the **Stacks** menu item in the side window.  Select the stacks named **SnortStack** and **ImageBuilderStack**.  Click on the **delete** button.
+5. Select the **EC2 AMI Image** and click on **actions** drop down.  Select **Deregister**.
