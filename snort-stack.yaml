@@ -19,8 +19,9 @@ Parameters:
     Description: Enter a CIDR range for the VPC.
   
   LinuxImageId:
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+    Type: String
+    Default: ''
+    Description: Enter the AMI ID for the Snort Sensor.
   
   FireHoseS3BufferSize:
     Type: Number
@@ -70,25 +71,34 @@ Resources:
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
-    Properties: {}
+    Properties:
+      Tags:
+        - Key: Name
+          Value: snort-igw
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC1
-  
+   
   EIP:
-   DependsOn: InternetGatewayAttachment
-   Type: AWS::EC2::EIP
-   Properties:
+    DependsOn: InternetGatewayAttachment
+    Type: AWS::EC2::EIP
+    Properties:
       Domain: vpc
+      Tags:
+        - Key: Name
+          Value: snort-igw-eip
   
   NatGateway:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt EIP.AllocationId
       SubnetId: !Ref SN2
+      Tags:
+        - Key: Name
+          Value: snort-ngw
   
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -133,208 +143,8 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref SN1
 
-  SnortImageRecipe:
-    Type: AWS::ImageBuilder::ImageRecipe
-    Properties:
-      ParentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2-x86/2020.4.7
-      Name: SnortImageRecipe
-      Version: "1.0.0"
-      Components: 
-        - ComponentArn: !Ref EPELRepoComponent
-        - ComponentArn: !Ref DAQComponent
-        - ComponentArn: !Ref SnortComponent
 
-  EPELRepoComponent:
-    Type: AWS::ImageBuilder::Component
-    Properties:
-      Name: EPELRepoComponent
-      Platform: Linux
-      Version: "1.0.0"
-      Data: |
-        name: EPELRepoDoc - InlineData
-        description: This is the EPEL Repo installation Document
-        schemaVersion: 1.0
- 
-        phases:
-          - name: build
-            steps:
-              - name: BuildEPELRepo
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-          - name: validate
-            steps:
-              - name: ValidateEPELrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - echo "ValidateEPLrpm"
-          - name: test
-            steps:
-              - name: TestEPELrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - echo "TestEPLrpm"
-
-  DAQComponent:
-    Type: AWS::ImageBuilder::Component
-    Properties:
-      Name: DAQComponent
-      Platform: Linux
-      Version: "1.0.0"
-      Data: |
-        name: DAQDoc - InlineData
-        description: This is the DAQ installation Document
-        schemaVersion: 1.0
- 
-        phases:
-          - name: build
-            steps:
-              - name: BuildDAQrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - sudo yum install -y https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
-          - name: validate
-            steps:
-              - name: ValidateDAQrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - echo "ValidateDAQrpm"
-          - name: test
-            steps:
-              - name: TestDAQrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - echo "TestDAQrpm"
-
-  SnortComponent:
-    Type: AWS::ImageBuilder::Component
-    Properties:
-      Name: SnortComponent
-      Platform: Linux
-      Version: "1.0.0"
-      Data: |
-        name: SnortDoc - InlineData
-        description: This is the Snort installation document
-        schemaVersion: 1.0
- 
-        phases:
-          - name: build
-            steps:
-              - name: BuildSnortrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - >-
-                      sudo yum install -y https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
-                    - sudo mkdir /usr/local/lib/snort_dynamicrules
-                    - sudo chown -R snort:snort /usr/local/lib/snort_dynamicrules
-                    - sudo chmod 2775 /var/log/snort
-                    - sudo chmod u+s /var/log/snort
-                    - sudo wget -nv https://www.snort.org/downloads/community/community-rules.tar.gz -O /var/tmp/community-rules.tar.gz
-                    - sudo gunzip -f /var/tmp/community-rules.tar.gz
-                    - sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
-                    - sudo cp /var/tmp/community-rules/* /etc/snort/rules/
-          - name: validate
-            steps:
-              - name: ValidateSnortrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - echo "ValidateSnortrpm"
-          - name: test
-            steps:
-              - name: TestSnortrpm
-                action: ExecuteBash
-                inputs:
-                  commands:
-                    - echo "TestSnortrpm"
-  
-  SnortInfrastructureConfiguration:
-    Type: AWS::ImageBuilder::InfrastructureConfiguration
-    Properties:
-      InstanceProfileName: SSMInstanceProfile
-      Description: "Infrastructure configuration for a Snort sensor"
-      Name: SnortInfrastructureConfiguration
-      InstanceTypes: []
-      SecurityGroupIds: []
-      Tags:
-        Name: "SnortSensor"
-        SSMType: "SnortSensor"
-        SSMManaged: "True"
-      TerminateInstanceOnFailure: true
-    DependsOn: SSMInstanceProfile
-     
-#        - t2.medium
-#      SecurityGroupIds: {}
-#        - !Ref SG1
-#      SubnetId: !Ref SN1
-#      Tags: 
-#        - 
-#          Key: "Name"
-#          Value: "SnortSensor"
-#        - 
-#          Key: "SSMType"
-#          Value: "SnortSensor"
-#        - 
-#          Key: "SSMManaged"
-#          Value: "True"
-#      Logging:
-#        S3Logs: 
-#          S3BucketName: !Ref SSMLoggingBucket
-#          S3KeyPrefix: SnortImageBuilder
-
-  SnortDistributionConfiguration:
-    Type: AWS::ImageBuilder::DistributionConfiguration
-    Properties:
-      Name: SnortDistributionConfiguration
-      Description: "Snort Sensor image Builder Distribution configuration."
-      Distributions:
-        - AmiDistributionConfiguration:
-            Name: SnortImage {{imagebuilder:buildDate}}
-          Region: us-east-1
-
-  SnortImagePipeline:
-    Type: AWS::ImageBuilder::ImagePipeline
-    Properties:
-      ImageRecipeArn: !Ref SnortImageRecipe
-      InfrastructureConfigurationArn: !Ref SnortInfrastructureConfiguration
-      DistributionConfigurationArn: !Ref SnortDistributionConfiguration
-      Name: SnortImagePipeline
-      Description: "Image Pipeline to build a Snort Sensor."
-
-#  SnortSensor:
-#    Type: 'AWS::EC2::Instance'
-#    Properties:
-#      NetworkInterfaces:
-#        - SubnetId: !Ref SN1
-#          DeviceIndex: 0
-#          GroupSet: 
-#            - !Ref SG1
-#      InstanceType: t2.medium
-#      ImageId: !Ref LinuxImageId
-#      UserData:
-#        Fn::Base64: !Sub |
-#          #!/bin/bash -xe
-#          yum update -y
-#      Tags: 
-#        - 
-#          Key: "Name"
-#          Value: "SnortSensor"
-#        - 
-#          Key: "SSMType"
-#          Value: "SnortSensor"
-#        - 
-#          Key: "SSMManaged"
-#          Value: "True"
-#      IamInstanceProfile: !Ref SSMInstanceProfile
-
-  TrafficGenerator:
+  SnortSensor:
     Type: 'AWS::EC2::Instance'
     Properties:
       NetworkInterfaces:
@@ -351,10 +161,10 @@ Resources:
       Tags: 
         - 
           Key: "Name"
-          Value: "TrafficGenerator"
+          Value: "SnortSensor"
         - 
           Key: "SSMType"
-          Value: "TrafficGenerator"
+          Value: "SnortSensor"
         - 
           Key: "SSMManaged"
           Value: "True"
@@ -547,10 +357,6 @@ Resources:
         - Key: Name
           Value: snort-sg
   
-  SSMLoggingBucket:
-    Type: 'AWS::S3::Bucket'
-    Properties: {}
-
   AthenaQueryResultsBucket:
     Type: 'AWS::S3::Bucket'
     Properties: {}

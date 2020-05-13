@@ -1,0 +1,309 @@
+AWSTemplateFormatVersion: 2010-09-09
+# Added a comment for the first time.
+
+Resources:
+
+  SSMLoggingBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties: {}
+
+  SnortImageRecipe:
+    Type: AWS::ImageBuilder::ImageRecipe
+    Properties:
+      ParentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2-x86/2020.4.7
+      Name: SnortImageRecipe
+      Version: "1.0.0"
+      Description: "Snort sensor image recipe."
+      Components: 
+        - ComponentArn: !Ref EPELRepoComponent
+        - ComponentArn: !Ref DAQComponent
+        - ComponentArn: !Ref SnortComponent
+        - ComponentArn: !Ref GitComponent
+        - ComponentArn: !Ref JDKComponent
+
+  EPELRepoComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: EPELRepoComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Description: "Installs the EPEL repo for the yum package manager."
+      ChangeDescription: "Initial"
+      Data: |
+        name: EPELRepoDoc - InlineData
+        description: This is the EPEL Repo installation Document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildEPELRepo
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+          - name: validate
+            steps:
+              - name: ValidateEPELrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "ValidateEPLrpm"
+          - name: test
+            steps:
+              - name: TestEPELrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestEPLrpm"
+
+  DAQComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: DAQComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Description: "Installs the Data Aquisition pakage for Linux."
+      ChangeDescription: "Initial"
+      Data: |
+        name: DAQDoc - InlineData
+        description: This is the DAQ installation Document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - sudo yum install -y https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
+          - name: validate
+            steps:
+              - name: ValidateDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "ValidateDAQrpm"
+          - name: test
+            steps:
+              - name: TestDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestDAQrpm"
+
+  SnortComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: SnortComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Description: "Installs the Snort package for Linux."
+      ChangeDescription: "Initial"
+      Data: |
+        name: SnortDoc - InlineData
+        description: This is the Snort installation document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildSnortrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - >-
+                      sudo yum install -y https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
+                    - sudo mkdir /usr/local/lib/snort_dynamicrules
+                    - sudo chown -R snort:snort /usr/local/lib/snort_dynamicrules
+                    - sudo chmod 2775 /var/log/snort
+                    - sudo chmod u+s /var/log/snort
+                    - sudo wget -nv https://www.snort.org/downloads/community/community-rules.tar.gz -O /var/tmp/community-rules.tar.gz
+                    - sudo gunzip -f /var/tmp/community-rules.tar.gz
+                    - sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
+                    - sudo cp /var/tmp/community-rules/* /etc/snort/rules/
+          - name: validate
+            steps:
+              - name: ValidateSnortrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "ValidateSnortrpm"
+          - name: test
+            steps:
+              - name: TestSnortrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestSnortrpm"
+
+  GitComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: GitComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Description: "Installs the Git client."
+      ChangeDescription: "Initial"
+      Data: |
+        name: GitDoc - InlineData
+        description: This is the Git installation Document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildGitrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - >-
+                      sudo yum install -y git
+          - name: validate
+            steps:
+              - name: ValidateDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "ValidateGitrpm"
+          - name: test
+            steps:
+              - name: TestDAQrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestGitrpm"
+
+  JDKComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: JDKComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Description: "Installs the Oracle JDK."
+      ChangeDescription: "Initial"
+      Data: |
+        name: JDKDoc - InlineData
+        description: This is the Oracle JDK installation Document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildJDKrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - >-
+                      sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/jdk-8u231-linux-x64.rpm -O /var/tmp/jdk-8u231-linux-x64.rpm
+                    - sudo yum install -y /var/tmp/jdk-8u231-linux-x64.rpm
+          - name: validate
+            steps:
+              - name: ValidateKinesisrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "ValidateJDKrpm"
+          - name: test
+            steps:
+              - name: TestKinesisrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestJDKrpm"
+
+  KinesisComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: KinesisComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Description: "Installs the Kinesis client."
+      ChangeDescription: "Initial"
+      Data: |
+        name: KinesisDoc - InlineData
+        description: This is the Kinesis installation Document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildKinesisrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - >-
+                      sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
+                    - sudo chkconfig aws-kinesis-agent on
+          - name: validate
+            steps:
+              - name: ValidateKinesisrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "ValidateKinesisrpm"
+          - name: test
+            steps:
+              - name: TestKinesisrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestKinesisrpm"
+  
+  SnortInfrastructureConfiguration:
+    Type: AWS::ImageBuilder::InfrastructureConfiguration
+    Properties:
+      InstanceProfileName: ImageBuilderInstanceProfile
+      Description: "Infrastructure configuration for a Snort Sensor image build."
+      Name: SnortInfrastructureConfiguration
+      InstanceTypes: []
+      SecurityGroupIds: []
+      TerminateInstanceOnFailure: true
+      Logging:
+        S3Logs: 
+          S3BucketName: !Ref SSMLoggingBucket
+          S3KeyPrefix: SnortImageBuilder
+    DependsOn: ImageBuilderInstanceProfile
+
+  SnortDistributionConfiguration:
+    Type: AWS::ImageBuilder::DistributionConfiguration
+    Properties:
+      Name: SnortDistributionConfiguration
+      Description: "Distribution configuration for Snort Sensor image build."
+      Distributions:
+        - AmiDistributionConfiguration:
+            Name: SnortImage {{imagebuilder:buildDate}}
+          Region: us-east-1
+
+  SnortImagePipeline:
+    Type: AWS::ImageBuilder::ImagePipeline
+    Properties:
+      ImageRecipeArn: !Ref SnortImageRecipe
+      InfrastructureConfigurationArn: !Ref SnortInfrastructureConfiguration
+      DistributionConfigurationArn: !Ref SnortDistributionConfiguration
+      Name: SnortImagePipeline
+      Description: "Image Pipeline to build a Snort Sensor image."
+
+  ImageBuilderInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: ImageBuilderInstanceProfile
+      Roles: 
+        - !Ref ImageBuilderInstanceRole
+  
+  ImageBuilderInstanceRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement: 
+          - 
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilder

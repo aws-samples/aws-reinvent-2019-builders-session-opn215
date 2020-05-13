@@ -28,7 +28,32 @@ Things you will explore include:
 |   |   |-- snort                     <-- Snort init script
 ```
 
-## A. Deploy the stack
+## A. Deploy the EC2 Image Pipeline stack
+---
+In this section we will use CloudFormation to deploy EC2 Image Pipeline stack.  This includes all the components for a Snort Sensor recipe.  
+
+---
+1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
+2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
+3. In the **Specify Template** page, navigate to the **specify a template** section and select the option to **upload a template file**.
+4. Select the **choose file** button, navigate to te directory where you downloaded the package and select the **image-builder-pipeline.yaml** file, then click on the **open** button.  Click on the **next** button to continue.
+5. In the **Stack Details** page, set the stack name to **ImageBuilderStack**.  Look through the template parameters for your information, then click on the **next** button to continue.
+6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
+7. In the **review ImageBuilderStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
+
+## B. Run the EC2 Image Builder Pipeline
+---
+In this section we will run the EC2 Image Builder Pipline to create an AMI that includes the Snort and Kinesis packages along with all their dependancies.
+
+---
+1. In the AWS Console, open the **EC2 Image Builder** console.
+2. Select **Image pipelines** in the menu in the left hand window.
+3. Select **SnortImagePipeline** in the right hand window.
+4. Click on the **Actions** drop down and select **run pipeline** from the menu.
+
+The Pipeline will now generate the AMI to be used to create our Snort Sensor.  This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this ![on-prem-link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
+
+## C. Deploy the Snort stack
 ---
 In this section we will use CloudFormation to deploy the intial stack.  This includes all the infrastructure needed to get the basic environment working.  The diagram below represents the stack in is current form.
 
@@ -42,7 +67,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 4. Select the **choose file** button, navigate to te directory where you downloaded the package and select the **cfn-template.yaml** file, then click on the **open** button.  Click on the **next** button to continue.
 5. In the **Stack Details** page, set the stack name to **SnortStack**.  Look through the template parameters for your information, then click on the **next** button to continue.
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
-7. In the **review aws-snort-demo** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
+7. In the **review SnortStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
 ## B. Open a shell session to the Snort Sensor
 ---
@@ -76,14 +101,13 @@ In this section we will copy the artifacts we need to complete the installation 
 3. Click on the **Run a command** button in the right hand window.
 4. Type **AWS-RunShellScript** into the search bar and press the **return** key. 
 5. Select the radio button for the **AWS-RunShellScript** document.
-6. Scroll down until you see the **Command Parameters** feild.  Copy and past the following commands into that feild.
+6. Scroll down until you see the **Command Parameters** field.  Copy and past the following commands into that field.
 ```bash
-sudo yum install -y git
 git clone https://github.com/aws-samples/aws-reinvent-2019-builders-session-opn215
 ```
-7. In the working directory feild, type in **/home/ssm-user**.
+7. In the working directory field, type in **/home/ssm-user**.
 8. Scroll down to the **Targets** section.
-9. Select the raiod button for **Specify instance tags**.
+9. Select the radio button for **Specify instance tags**.
 10. Type the following values into the feilds for the tags and then click on the **Add** button.
 
 | Tag Key | Value |
@@ -152,8 +176,6 @@ In this section we will use ![Session Manager](https://docs.aws.amazon.com/syste
 5. Click on the **start session** button.
 6. Execute the following steps to set up the Kinesis agent.  Execute command individually, do not copy and paste all the commands at once.
 ```bash
-sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/jdk-8u231-linux-x64.rpm -O /var/tmp/jdk-8u231-linux-x64.rpm
-sudo yum install -y /var/tmp/jdk-8u231-linux-x64.rpm
 sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
 sudo chkconfig aws-kinesis-agent on
 sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/aws-kinesis/agent.json /etc/aws-kinesis/agent.json
