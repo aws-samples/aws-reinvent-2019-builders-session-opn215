@@ -58,6 +58,7 @@ In this section we will run the EC2 Image Builder Pipline to create an AMI that 
 ---
 ### Points to note:
 This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this ![on-prem-link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
+
 ---
 
 ## C. Deploy the Snort stack
@@ -233,18 +234,18 @@ We now have a large volume of Snort alert data and packet data arriving in our S
 ![Athena](images/Athena.png "Athena")
 
 ---
-1. In thwe AWS Console, open the **S3** service.
+1. In the AWS Console, open the **S3** service.
 2. Copy the name of the S3 bucket that starts with **SnortStack-AthenaQueryResultsBucket**.  Also copy the name of the bucket beginning with **SnortStack-snortalertdata**.  You will need these later.
 3. In the AWS Console, open the **Athena** console.
 4. Click on the **Get Started** link.
 5. Click on the link to **set up a query result location in Amazon S3**. 
 6. Select the **s3://*your athena query bucket here*/results/**.
-7. In the left had window, select the linke **Create Table - from S3 bucket data**.
+7. In the left had window, select the link **Create Table - from S3 bucket data**.
 8. In the **Databases > Add table** page, set the new **database** name to **SnortAlertData**.
 9. Set the table name to **snort_alerts**.
 10. Set the **Location of input data set** to the S3 bucket containing the snort alert data.  Click on the **next** button.
 11. Set the **data format** radio button to **CSV** and click on the next button.
-12.  Add the data columns for the snort csv data.  Se;lect the b utton to **bulk add columns** and paste int he strign below:
+12.  Add the data columns for the snort csv data.  Select the b utton to **bulk add columns** and paste in the string below:
 ```
 timestamp string, sig_generator string, sig_id string, sig_rev string, msg string, proto string, src string, srcport string, dst string, dstport string, ethsrc string, ethdst string, ethlen string, tcpflags string, tcpseq string, tcpack string, tcplen string, tcpwindow string, ttl string, tos string, id string, dgmlen string, iplen string, icmptype string, icmpcode string, icmpid string, icmpseq string
 ```
@@ -255,7 +256,7 @@ timestamp string, sig_generator string, sig_id string, sig_rev string, msg strin
 ```sql
 select * from snort_alerts limit 1000
 ```
-17. Save a copy of your query bu clicking on the **Save as** button.  Name your query **last-1k-snort-alerts** and add a description.  Click on the **save** button to continue.  Click on the **Saved queries** tab to check your query is listed.
+17. Save a copy of your query by clicking on the **Save as** button.  Name your query **last-1k-snort-alerts** and add a description.  Click on the **save** button to continue.  Click on the **Saved queries** tab to check your query is listed.
 17.  **Whoohoo!**  You can now perform adhoc queries on your Snort alert data using Athena!  Try out some different sample queries to see what you can discover about the network traffic hitting your server.
 
 ## L. Visualise Snort data in Quicksight
@@ -268,7 +269,7 @@ As you can see, its easy to get up and runing with Athena for ad-hoc queries of 
 ---
 1. In thwe AWS Console, open the **Quicksight** service.
 2. The first time you use this you will be asked to sign up.  Click on the **sign up for quicksight** button to continue.
-3. You will see the licensing options, leatf the defaul of **Enterprise** and click the **continue** button.
+3. You will see the licensing options, leave the default of **Enterprise** and click the **continue** button.
 4. Type ***yourname*-aws-snort-demo-quicksight** into the **Quicksight Account name** field
 5. Type your email address into the **email** field and click on the **finish** button.
 6. After a short time you shoudl see the **Congratulations** page.  Click on the **go to Amazon quicksight** button to continue.
@@ -277,10 +278,10 @@ As you can see, its easy to get up and runing with Athena for ad-hoc queries of 
 9. The **Create a Data Set** page will open.  Select the **Athena** button and type in the name **SnortAlertDataSource**.  Click on the **Create Data Source** button to continue.
 10. You will now see the **choose your table** page.  Select **snortalertdata** from the **database** list.  Select **snort_alerts** from the **table** list.  Click on the **select** button to continue.
 11. The **finish data set creation** page will be displayed.  Leave the default seting to import SPICE and click on the **visualise** button.
-12. You may see no data at first, so click on the refresh import link to continue.  If you see a permission error then see the troubleshooting section below.  Whern the data appears int he SPICE page, select the save and visualise button to return to the visualization page.
-13. In the **feilds list**, select **src** and **proto**.  Leave the **visual type** as **auto**.  You should noe have a bar chart showing you the top talkers to your server by protocol.
+12. You may see no data at first, so click on the refresh import link to continue.  If you see a permission error then see the troubleshooting section below.  Whern the data appears in the SPICE page, select the save and visualise button to return to the visualization page.
+13. In the **fields list**, select **src** and **proto**.  Leave the **visual type** as **auto**.  You should noe have a bar chart showing you the top talkers to your server by protocol.
 14. Select the top talker in the bar chart, then click on the **focus only on IP** setting.  You will now see only traffic from that single IP.
-13. **Whoohoo!**  You can now visualise your alert data using Quicksight!  Try our different graphs to identify the most common surce IP for alerts, protocol, and experiment with the feilds available to you.
+13. **Whoohoo!**  You can now visualise your alert data using Quicksight!  Try our different graphs to identify the most common surce IP for alerts, protocol, and experiment with the fields available to you.
 ---
 ### Common issues
 #### Insufficient Permissions
@@ -289,15 +290,15 @@ Quicksight may not have all the permissions required to access the Snort data.  
 ---
 
 ## Y. What next?
-This lab is a basis for further exploration on the subject of how to get insights from your NIDS systems.  It highlighted the strenghts of using automation tools for deployign and managig Snort Sensors.  We explored how to run simple SQL querieis and generate visual reports.  Movign forward you can explore further automation ideas:
+This lab is a basis for further exploration on the subject of how to get insights from your NIDS systems.  It highlighted the strenghts of using automation tools for deployign and managing Snort Sensors.  We explored how to run simple SQL querieis and generate visual reports.  Moving forward you can explore further automation ideas:
 * Implement a CI/CD piepline for Snort configuration management using CodePipeline
 * Anomaly detection using Sagemaker
 * Packet analysis using tcpdump tools or Kali Linux
-* Leverage the Scapy library for python and use the traffic generator to test Snort rules
+* Leverage the Scapy library for python and use a traffic generator to test Snort rules
 
 ## Z. Delete the stack
-1. In the AWS console, open the S3 console.
-2. Select and empty the buckets with names beginning with **SnortStack** and **ImageBuilderStack**.
+1. In the AWS Console, Select EC2.  Select the SnortSensor instance and stop it.
+2. In the AWS console, open the S3 console. Select and empty the buckets with names beginning with **SnortStack** and **ImageBuilderStack**.
 3. In the AWS console, open CloudFormation.  Make sure that your current region is us-east-1, North Virginia.
 4. Select the **Stacks** menu item in the side window.  Select the stacks named **SnortStack** and **ImageBuilderStack**.  Click on the **delete** button.
 5. Select the **EC2 AMI Image** and click on **actions** drop down.  Select **Deregister**.
