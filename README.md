@@ -39,7 +39,7 @@ Things you will explore include:
 
 In this section we will use CloudFormation to deploy [EC2 ImageBuilder](https://docs.aws.amazon.com/imagebuilder/latest/userguide/how-image-builder-works.html "EC2 ImageBuilder") Pipeline stack.  This includes all the components for a Snort Sensor recipe that ImageBuilder can run to produce an AMI.
 </p>
-
+<p>
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
 2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
 3. In the **Specify Template** page, navigate to the **specify a template** section and select the option to **upload a template file**.
@@ -47,6 +47,7 @@ In this section we will use CloudFormation to deploy [EC2 ImageBuilder](https://
 5. In the **Stack Details** page, set the stack name to **ImageBuilderStack**.  Look through the template parameters for your information, then click on the **next** button to continue.
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review ImageBuilderStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
+</p>
 
 ## B. Run the EC2 Image Builder Pipeline
 ---
