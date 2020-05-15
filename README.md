@@ -35,9 +35,7 @@ Things you will explore include:
 
 ## A. Deploy the EC2 Image Pipeline stack
 ---
-<div style="float: right">
-    ![EC2 Image Builder](images/EC2ImageBuilder.png "EC2 Image Builder")
-</div>
+<img align="left" width="100" height="100" src="images/EC2ImageBuilder.png">
 In this section we will use CloudFormation to deploy EC2 Image Pipeline stack.  This includes all the components for a Snort Sensor recipe.  
 
 ---
