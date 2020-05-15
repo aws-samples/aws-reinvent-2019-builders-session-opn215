@@ -8,6 +8,11 @@ Things you will explore include:
 * Store your Snort Sensor data in a scalable and cost effective manner using Simple Storage Service S3
 * Gain insights from your Snort data usign Analytics services Athena and Quicksight
 
+---
+![Architecture Diagram](images/Architecture.jpg "Architecture diagram")
+
+---
+
 ## Contents
 ```
 .
@@ -30,10 +35,10 @@ Things you will explore include:
 
 ## A. Deploy the EC2 Image Pipeline stack
 ---
+<div style="float: right">
+    ![EC2 Image Builder](images/EC2ImageBuilder.png "EC2 Image Builder")
+</div>
 In this section we will use CloudFormation to deploy EC2 Image Pipeline stack.  This includes all the components for a Snort Sensor recipe.  
-
----
-![EC2 Image Builder](images/EC2ImageBuilder.png "EC2 Image Builder")
 
 ---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
@@ -47,6 +52,9 @@ In this section we will use CloudFormation to deploy EC2 Image Pipeline stack.  
 ## B. Run the EC2 Image Builder Pipeline
 ---
 In this section we will run the EC2 Image Builder Pipline to create an AMI that includes the Snort and Kinesis packages along with all their dependancies.
+
+---
+![EC2 AMI](images/AMI.png "EC2 AMI")
 
 ---
 1. In the AWS Console, open the **EC2 Image Builder** console.
@@ -69,7 +77,7 @@ This AMI can be used in both AWS and on-premisis environments.  To run the image
 In this section we will use CloudFormation to deploy the intial stack.  This includes all the infrastructure needed to get the basic environment working.  The diagram below represents the stack in is current form.
 
 ---
-![Architecture Diagram](images/Architecture.jpg "Architecture diagram")
+
 
 ---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
