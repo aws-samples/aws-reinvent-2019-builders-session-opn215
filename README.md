@@ -37,7 +37,7 @@ Things you will explore include:
 In this section we will use CloudFormation to deploy [EC2 ImageBuilder](https://docs.aws.amazon.com/imagebuilder/latest/userguide/how-image-builder-works.html "EC2 ImageBuilder") Pipeline stack.  This includes all the components for a Snort Sensor recipe that ImageBuilder can run to produce an AMI.
 
 ---
-![EC2 Image Builder](images/EC2ImageBuilder.png "EC2 Image Builder")
+![CloudFormation](images/EC2ImageBuilder.png "CloudFormation")
 
 ---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
@@ -49,11 +49,10 @@ In this section we will use CloudFormation to deploy [EC2 ImageBuilder](https://
 7. In the **review ImageBuilderStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
 ## B. Run the EC2 Image Builder Pipeline
----
 In this section we will run the EC2 Image Builder Pipline to create an AMI that includes the Snort and Kinesis packages along with all their dependancies.
 
 ---
-![EC2 AMI](images/AMI.png "EC2 AMI")
+![EC2 Image Builder](images/EC2ImageBuilder.png "EC2 Image Builder")![EC2 AMI](images/AMI.png "EC2 AMI")
 
 ---
 1. In the AWS Console, open the **EC2 Image Builder** console.
@@ -72,11 +71,10 @@ This AMI can be used in both AWS and on-premisis environments.  To run the image
 ---
 
 ## C. Deploy the Snort stack
----
 In this section we will use CloudFormation to deploy the intial stack.  This includes all the infrastructure needed to get the basic environment working.  The diagram below represents the stack in is current form.
 
 ---
-
+![CloudFormation](images/EC2ImageBuilder.png "CloudFormation")
 
 ---
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
