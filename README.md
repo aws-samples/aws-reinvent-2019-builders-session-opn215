@@ -60,7 +60,7 @@ In this section we will run the EC2 Image Builder Pipline to create an AMI that 
 
 ---
 ### Points to note:
-This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this [on-prem-link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
+This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this [link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
 
 ---
 
@@ -83,7 +83,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 
 ## D. Open a shell session to the Snort Sensor
 ---
-In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
+In this section we will use [Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
 
 ---
 ![Systems manager](images/systems-manager.jpg "Systems Manager")
@@ -98,11 +98,11 @@ In this section we will use ![Session Manager](https://docs.aws.amazon.com/syste
 ```bash
 cat /var/log/cloud-init-output.log | more
 ```
-7. **Whoohoo!**  You have not access you new Linux instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation ![here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
+7. **Whoohoo!**  You have not access you new Linux instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
 
 ## E. Download tools package
 ---
-In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager ![Run Command](https://docs.aws.amazon.com/systems-manager/latest/userguide/execute-remote-commands.html "Run Command") feature which allows you to apply updates across multiple instances based on tags or instance ids.
+In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager [Run Command](https://docs.aws.amazon.com/systems-manager/latest/userguide/execute-remote-commands.html "Run Command") feature which allows you to apply updates across multiple instances based on tags or instance ids.
 
 ---
 ![Run Command](images/run-command.png "Run Command")
@@ -137,7 +137,7 @@ git clone https://github.com/aws-samples/aws-reinvent-2019-builders-session-opn2
 
 ## F. Configure Snort
 ---
-In this section we use Systems manager Automation Document to update the local configuration of Snort on the sensor.
+In this section we use Systems manager [Automation Document](https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-documents.html "Automation Document") to update the local configuration of Snort on the sensor.
 The automation copies the configuration files from our central repository whene the files are under version control.  It then deploys the files on the local host.  this is a great way to allow you to have controlled change and automated deplyment for your Snort configuration and rules.
 
 ---
@@ -156,7 +156,7 @@ The automation copies the configuration files from our central repository whene 
 
 ## G. Install Kinesis agent
 ---
-In this section we will use ![Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") install the Kinesis agent.  Kinesis streams are a tool that allows lots of independant devices or services to send messages to a central aggregation point where we can store them for analyticis purposes.  In our case we are sending all the Snort alerts and packet captures to Kinesis Firehose, which in turn stores the data in S3 buckets for later use.
+In this section we will use [Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") install the Kinesis agent.  Kinesis streams are a tool that allows lots of independant devices or services to send messages to a central aggregation point where we can store them for analyticis purposes.  In our case we are sending all the Snort alerts and packet captures to Kinesis Firehose, which in turn stores the data in S3 buckets for later use.
 
 ---
 ![Kinesis Data Firehose](images/KinesisFirehose.png "Kinesis Data Firehose")
