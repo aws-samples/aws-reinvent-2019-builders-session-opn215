@@ -60,7 +60,7 @@ In this section we will run the EC2 Image Builder Pipline to create an AMI that 
 
 ---
 ### Points to note:
-This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this ![on-prem-link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
+This AMI can be used in both AWS and on-premisis environments.  To run the image in on-premisis environments, see the documentation at this [on-prem-link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-2-virtual-machine.html "link").  You can also keep a watch on the AMI build process by navigating ot the **Systems Manager** in the console and selecting **Automations**.  You should see an automation that is progressing and it will take 10 minutes or so to complete.  The Log files for the automation will be stored in an S3 bucket **ImageBuilderStack-ssmloggingbucket-uniqueid** so you can analyse them for any issues.
 
 ---
 
