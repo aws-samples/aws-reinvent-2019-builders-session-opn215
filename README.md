@@ -77,7 +77,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
 3. In the **Specify Template** page, navigate to the **specify a template** section and select the option to **upload a template file**.
 4. Select the **choose file** button, navigate to te directory where you downloaded the package and select the **cfn-template.yaml** file, then click on the **open** button.  Click on the **next** button to continue.
-5. In the **Stack Details** page, set the stack name to **SnortStack**.  Look through the template parameters for your information, then click on the **next** button to continue.
+5. In the **Stack Details** page, set the stack name to **SnortStack**.  Set the **LinuxImageId** paremeter to uise the **AMI ID** that you copied in the previous section.  Review the other template parameters for your information, then click on the **next** button to continue.
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review SnortStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
