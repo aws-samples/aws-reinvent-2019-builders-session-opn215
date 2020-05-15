@@ -34,9 +34,11 @@ Things you will explore include:
 ```
 
 ## A. Deploy the EC2 Image Pipeline stack
-<img align="left" width="100" height="100" src="images/EC2ImageBuilder.png">
+<p>
+<img align="left" width="100" height="100" src="images/EC2ImageBuilder.png"></img>
 
 In this section we will use CloudFormation to deploy [EC2 ImageBuilder](https://docs.aws.amazon.com/imagebuilder/latest/userguide/how-image-builder-works.html "EC2 ImageBuilder") Pipeline stack.  This includes all the components for a Snort Sensor recipe that ImageBuilder can run to produce an AMI.
+</p>
 
 1. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
 2. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
