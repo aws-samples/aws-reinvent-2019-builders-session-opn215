@@ -6,7 +6,7 @@ Parameters:
   VPC1CidrBlock:
     Type: String
     Default: 10.0.0.0/16
-    Description: Enter a CIDR range for the VPC.
+    Description: Enter a CIDR range for the Snort VPC.
 
   SN1CidrBlock:
     Type: String
@@ -50,7 +50,7 @@ Resources:
       Tags:
         - Key: Name
           Value: snort-vpc
-  
+
   SN1:
     Type: 'AWS::EC2::Subnet'
     Properties:
@@ -142,7 +142,6 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref SN1
-
 
   SnortSensor:
     Type: 'AWS::EC2::Instance'
@@ -356,94 +355,10 @@ Resources:
       Tags:
         - Key: Name
           Value: snort-sg
-  
+
   AthenaQueryResultsBucket:
     Type: 'AWS::S3::Bucket'
     Properties: {}
-
-#  SnortInstall:
-#    Type: 'AWS::SSM::Document'
-#    Properties:
-#      DocumentType: Automation
-#      Content:
-#        description: >-
-#          # SnortInstallAndConfigure#
-#
-#          This document sets up the EPEL repo and installs the Snort rpm's.  It then
-#          moves on to download and deploy the community rules.
-#        schemaVersion: '0.3'
-#        parameters:
-#          InstanceId: 
-#            type: StringList
-#        mainSteps:
-#          - name: InstallEPELRepo
-#            action: 'aws:runCommand'
-#            inputs:
-#              DocumentName: AWS-RunShellScript
-#              InstanceIds:
-#                - '{{InstanceId}}'
-#              Parameters:
-#                commands: >-
-#                  sudo yum install -y
-#                  https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-#            description: Install the EPEL repo from remote location.
-#            onFailure: Continue
-#          - name: InstallDAQrpm
-#            action: 'aws:runCommand'
-#            inputs:
-#              DocumentName: AWS-RunShellScript
-#              InstanceIds:
-#                - '{{InstanceId}}'
-#              Parameters:
-#                commands: >-
-#                  sudo yum install -y
-#                  https://www.snort.org/downloads/archive/snort/daq-2.0.6-1.f21.x86_64.rpm
-#            description: Installs the DAQ from the remote location.
-#            onFailure: Continue
-#          - name: InstallSnortrpm
-#            action: 'aws:runCommand'
-#            inputs:
-#              DocumentName: AWS-RunShellScript
-#              InstanceIds:
-#                - '{{InstanceId}}'
-#              Parameters:
-#                commands: >-
-#                  sudo yum install -y
-#                  https://www.snort.org/downloads/archive/snort/snort-openappid-2.9.9.0-1.f21.x86_64.rpm
-#            description: Installs the snort rpm
-#            onFailure: Continue
-#          - name: InstallCommunityRules
-#            action: 'aws:runCommand'
-#            inputs:
-#              DocumentName: AWS-RunShellScript
-#              Parameters:
-#                commands:
-#                  - >-
-#                    sudo wget -nv
-#                    https://www.snort.org/downloads/community/community-rules.tar.gz -O
-#                    /var/tmp/community-rules.tar.gz
-#                  - sudo gunzip -f /var/tmp/community-rules.tar.gz
-#                  - sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
-#                  - sudo cp /var/tmp/community-rules/* /etc/snort/rules/
-#              InstanceIds:
-#                - '{{InstanceId}}'
-#            description: Installs the community rules package.
-#            onFailure: Continue
-#          - name: CreateDirectories
-#            action: 'aws:runCommand'
-#            inputs:
-#              DocumentName: AWS-RunShellScript
-#              Parameters:
-#                commands:
-#                  - >-
-#                    sudo mkdir /usr/local/lib/snort_dynamicrules
-#                  - sudo chown -R snort:snort /usr/local/lib/snort_dynamicrules
-#                  - sudo chmod 2775 /var/log/snort
-#                  - sudo chmod u+s /var/log/snort
-#              InstanceIds:
-#                - '{{InstanceId}}'
-#            description: Sets directory permissions and create directories.
-#            onFailure: Continue
 
   SnortConfigure:
     Type: 'AWS::SSM::Document'

@@ -1,0 +1,255 @@
+AWSTemplateFormatVersion: 2010-09-09
+# Added a comment for the first time.
+
+Parameters: 
+
+  LinuxImageId:
+    Type: String
+    Default: ami-0c11557d0e4e9c896
+    Description: Enter the AMI ID for the Snort Sensor.
+
+  SOCKP:
+    Type: String
+    Default: soc-kp
+    Description: Name of the SOC EC2 keypair
+
+Mappings: {}
+
+Conditions: {}
+
+Outputs: {}
+
+Resources:
+
+  SOCVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties: 
+      CidrBlock: '10.1.0.0/16'
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        - Key: Name
+          Value: soc-vpc
+  
+  SOCPubSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref SOCVPC
+      CidrBlock: '10.1.1.0/24'
+      MapPublicIpOnLaunch: True
+      Tags:
+        - Key: Name
+          Value: soc-pub-sn
+
+  SOCPrvSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref SOCVPC
+      CidrBlock: '10.1.2.0/24'
+      Tags:
+        - Key: Name
+          Value: soc-prv-sn
+
+  SOCInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: soc-igw
+
+  SOCInternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref SOCInternetGateway
+      VpcId: !Ref SOCVPC
+   
+  SOCEIP:
+    DependsOn: SOCInternetGatewayAttachment
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: soc-igw-eip
+  
+  SOCNatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt SOCEIP.AllocationId
+      SubnetId: !Ref SOCPubSubnet
+      Tags:
+        - Key: Name
+          Value: soc-ngw
+  
+  SOCPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref SOCVPC
+      Tags:
+        - Key: Name
+          Value: soc-pub-rt
+  
+  SOCDefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: SOCInternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref SOCPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref SOCInternetGateway
+  
+  SOCPublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref SOCPublicRouteTable
+      SubnetId: !Ref SOCPubSubnet
+  
+  SOCPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref SOCVPC
+      Tags:
+        - Key: Name
+          Value: soc-prv-rt
+  
+  SOCDefaultPrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref SOCPrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref SOCNatGateway
+  
+  SOCPrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref SOCPrivateRouteTable
+      SubnetId: !Ref SOCPrvSubnet
+
+  KaliInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      NetworkInterfaces:
+        - SubnetId: !Ref SOCPubSubnet
+          DeviceIndex: 0
+          GroupSet: 
+            - !Ref SOCPubSG
+      InstanceType: t2.medium
+      ImageId: !Ref LinuxImageId
+      KeyName: !Ref SOCKP
+      Tags: 
+        - 
+          Key: "Name"
+          Value: "KaliSOCInstance"
+        - 
+          Key: "SSMType"
+          Value: "KaliSOCInstance"
+        - 
+          Key: "SSMManaged"
+          Value: "True"
+      IamInstanceProfile: !Ref SOCInstanceProfile
+
+  SOCInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      InstanceProfileName: SOCInstanceProfile
+      Roles: 
+        - !Ref SOCInstanceRole
+  
+  SOCInstanceRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: SOCInstanceRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement: 
+          - 
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+
+  SSMEndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SOCPubSG
+      ServiceName: 
+        !Join
+        - ''
+        - - 'com.amazonaws.'
+          - !Ref 'AWS::Region'
+          - '.ssm'
+      SubnetIds: 
+        - !Ref SOCPrvSubnet
+      VpcId: !Ref SOCVPC
+      VpcEndpointType: Interface
+  
+  SSMMessagesEndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SOCPubSG
+      ServiceName: 
+        !Join
+          - ''
+          - - 'com.amazonaws.'
+            - !Ref 'AWS::Region'
+            - '.ssmmessages'
+      SubnetIds: 
+        - !Ref SOCPrvSubnet
+      VpcId: !Ref SOCVPC
+      VpcEndpointType: Interface
+
+  EC2MessagesEndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SOCPubSG
+      ServiceName: 
+        !Join
+          - ''
+          - - 'com.amazonaws.'
+            - !Ref 'AWS::Region'
+            - '.ec2messages'
+      SubnetIds: 
+        - !Ref SOCPrvSubnet
+      VpcId: !Ref SOCVPC
+      VpcEndpointType: Interface
+
+  EC2EndPoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: 'true'
+      SecurityGroupIds: 
+        - !Ref SOCPubSG
+      ServiceName: 
+        !Join
+          - ''
+          - - 'com.amazonaws.'
+            - !Ref 'AWS::Region'
+            - '.ec2'
+      SubnetIds: 
+        - !Ref SOCPrvSubnet
+      VpcId: !Ref SOCVPC
+      VpcEndpointType: Interface
+
+  SOCPubSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all
+      VpcId: !Ref SOCVPC
+      SecurityGroupIngress:
+      - IpProtocol: -1
+        FromPort: -1
+        ToPort: -1
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: soc-pub-sg
