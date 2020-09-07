@@ -119,10 +119,6 @@ Resources:
                     - sudo chown -R snort:snort /usr/local/lib/snort_dynamicrules
                     - sudo chmod 2775 /var/log/snort
                     - sudo chmod u+s /var/log/snort
-                    - sudo wget -nv https://www.snort.org/downloads/community/community-rules.tar.gz -O /var/tmp/community-rules.tar.gz
-                    - sudo gunzip -f /var/tmp/community-rules.tar.gz
-                    - sudo tar -C /var/tmp -xvf /var/tmp/community-rules.tar
-                    - sudo cp /var/tmp/community-rules/* /etc/snort/rules/
           - name: validate
             steps:
               - name: ValidateSnortrpm
@@ -234,7 +230,10 @@ Resources:
                 inputs:
                   commands:
                     - >-
-                      sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
+                      sudo yum install -y expect
+                    - sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/kinesis-install.sh -O /var/tmp/kinesis-install.sh
+                    - sudo chmod +x /var/tmp/kinesis-install.sh
+                    - sudo /var/tmp/kinesis-install.sh
                     - sudo chkconfig aws-kinesis-agent on
           - name: validate
             steps:

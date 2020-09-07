@@ -70,6 +70,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC1
       CidrBlock: !Ref SN2CidrBlock
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: snort-pub-sn
@@ -181,11 +182,8 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       NetworkInterfaces:
-        - SubnetId: !Ref SN2
-          DeviceIndex: 0
-          GroupSet: 
-            - !Ref WebSG
-          AssociatePublicIpAddress: true
+        - NetworkInterfaceId: !Ref WebServerEth0
+          DeviceIndex: '0'
       InstanceType: t3.small
       IamInstanceProfile: !Ref SSMInstanceProfile
       ImageId: !Ref AmiID
@@ -468,10 +466,25 @@ Resources:
                   - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/snort.conf /etc/snort/snort.conf
                   - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/sysconfig/snort /etc/sysconfig/snort
                   - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/rules/local.rules /etc/snort/rules/local.rules
+                  - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/rules/community.rules /etc/snort/rules/community.rules
                   - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/rules/white_list.rules /etc/snort/rules/white_list.rules
                   - sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/snort/rules/black_list.rules /etc/snort/rules/black_list.rules
             description: Update all the Snort configuration files from GitHub repo.
             onFailure: Continue
+  
+  SnortTrafficSession:
+    DependsOn: WebServerInstance
+    Type: AWS::EC2::TrafficMirrorSession
+    Properties: 
+      Description: Snort Traffic Session
+      NetworkInterfaceId: !Ref WebServerEth0
+      SessionNumber: 1
+      TrafficMirrorFilterId: !Ref SnortTrafficFilter
+      TrafficMirrorTargetId: !Ref SnortTrafficTarget
+      VirtualNetworkId: 1111
+      Tags: 
+        - Key: Name
+          Value: web-to-snort-session
   
   SnortTrafficFilter:
     Type: AWS::EC2::TrafficMirrorFilter
@@ -479,7 +492,7 @@ Resources:
       Description: Snort Sensor trafic mirror filter.
       Tags: 
         - Key: Name
-          Value: snort-sensor-filter
+          Value: web-to-snort-filter
   
   SnortTrafficFilterRule:
     Type: AWS::EC2::TrafficMirrorFilterRule
@@ -523,3 +536,14 @@ Resources:
       GroupSet:
         - !Ref SG1
       SubnetId: !Ref SN1
+
+  WebServerEth0:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      Tags:
+        - Key: Name
+          Value: web-server-eth0
+      Description: Web Server primary adapter
+      GroupSet:
+        - !Ref WebSG
+      SubnetId: !Ref SN2
