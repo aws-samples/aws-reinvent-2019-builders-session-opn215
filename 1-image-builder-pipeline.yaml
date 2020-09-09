@@ -12,7 +12,7 @@ Resources:
     Properties:
       ParentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2-x86/2020.4.7
       Name: SnortImageRecipe
-      Version: "1.0.0"
+      Version: "1.0.1"
       Description: "Snort sensor image recipe."
       Components: 
         - ComponentArn: !Ref EPELRepoComponent
@@ -20,6 +20,8 @@ Resources:
         - ComponentArn: !Ref SnortComponent
         - ComponentArn: !Ref GitComponent
         - ComponentArn: !Ref JDKComponent
+        - ComponentArn: !Ref KinesisComponent
+        - ComponentArn: !Ref CodeDeployAgentComponent
 
   EPELRepoComponent:
     Type: AWS::ImageBuilder::Component
@@ -134,6 +136,47 @@ Resources:
                   commands:
                     - echo "TestSnortrpm"
 
+  CodeDeployAgentComponent:
+    Type: AWS::ImageBuilder::Component
+    Properties:
+      Name: CodeDeployAgentComponent
+      Platform: Linux
+      Version: "1.0.0"
+      Description: "Installs the Code Deploy package for Linux."
+      ChangeDescription: "Initial"
+      Data: |
+        name: CodeDeployAgentDoc - InlineData
+        description: This is the Code Deploy agent installation document
+        schemaVersion: 1.0
+ 
+        phases:
+          - name: build
+            steps:
+              - name: BuildCodeDeployrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - >-
+                      sudo yum install -y ruby
+                    - sudo yum install -y aws-cli
+                    - sudo aws s3 cp s3://aws-codedeploy-us-east-2/latest/install /home/ec2-user --region us-east-2
+                    - sudo chmod +x /home/ec2-user/install
+                    - sudo /home/ec2-user/install auto
+          - name: validate
+            steps:
+              - name: ValidateCodeDeployrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "ValidateCodeDeployrpm"
+          - name: test
+            steps:
+              - name: TestCodeDeployrpm
+                action: ExecuteBash
+                inputs:
+                  commands:
+                    - echo "TestCodeDeployrpm"
+
   GitComponent:
     Type: AWS::ImageBuilder::Component
     Properties:
@@ -214,7 +257,7 @@ Resources:
     Properties:
       Name: KinesisComponent
       Platform: Linux
-      Version: "1.0.0"
+      Version: "1.0.1"
       Description: "Installs the Kinesis client."
       ChangeDescription: "Initial"
       Data: |
@@ -234,7 +277,6 @@ Resources:
                     - sudo wget -nv https://aws-snort-demo-artifacts.s3.amazonaws.com/kinesis-install.sh -O /var/tmp/kinesis-install.sh
                     - sudo chmod +x /var/tmp/kinesis-install.sh
                     - sudo /var/tmp/kinesis-install.sh
-                    - sudo chkconfig aws-kinesis-agent on
           - name: validate
             steps:
               - name: ValidateKinesisrpm
