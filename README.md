@@ -41,8 +41,9 @@ Things you will explore include:
 
 ## Prerequisites
 This section describes the pre-requisites you must have in order to sucessfully run this demo.
-1. An AWS Account and an IAM user with sufficient privilegses to run the CloudFormation scripts.
-2. A PC or Mac with Git installed and a Web Browser compatible with the AWS Console.
+* An AWS Account and an IAM user with sufficient privilegses to run the CloudFormation scripts.
+* A PC or Mac with Git installed and a Web Browser compatible with the AWS Console.
+* The AWS CLI and AWS CLI Helper must be installed.  See these instructions for guidance on howe to [set up git](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-https-windows.html "set up git").
 
 ## A. Deploy the EC2 Image Pipeline stack
 In this section we will use [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html "CloudFormation") to deploy [EC2 ImageBuilder](https://docs.aws.amazon.com/imagebuilder/latest/userguide/how-image-builder-works.html "EC2 ImageBuilder") Pipeline stack.  This includes all the components for a Snort Sensor recipe that ImageBuilder can run to produce an AMI.
@@ -139,24 +140,63 @@ sudo ip link set vxlan0 up
 
 ## D. Import the codedeploy artifacts to CodeCommit
 ---
-In this section we will use [Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
-
+In this section we will use [CodeCommit](https://aws.amazon.com/codecommit/ "CodeCommit") to store the Snort configuration rules we need to scan network traffic.  This approach allows you to version control your Snort configuration and enables automated deployment of the rules.  The instructions here are based on this [Tutorial](https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-simple-codecommit.html "Tutorial").
 ---
 ![Systems manager](images/systems-manager.jpg "Systems Manager")
 
 ---
-1. In the AWS Console, open the **System Manager** console.
-2. Select **Session Manager** in the menu in the left hand window.
-3. Click on the **Start Session** button in the right hand window.
-4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
-5. Click on the **start session** button.
-6. Review the cloud-init script output to verify that the installation was sucessful.
+1. In the AWS Console, open the **CodeDeploy** console.
+2. Select **Source . CodeCommit** in the menu in the left hand window and then click on **Repositories**.
+3. Click on the **Radio Button** button next to **SnortConfigRepo** and then click on the **View repository** button.  You will see that the repo currenty has no files in it.
+4. Click on the **Clone Url button** for your repo and select **Clone HTTPS**.
+5. Note the requirements: Git, codecommit user and AWS CLI Credential Helper.  To set all this up follow the instructions at this link [Set Up Git](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-https-windows.html "Set up Git").  DO NOT CLONE THE REPO YET!
+6. Open a command line window on your PC and crate a temporary directory, for example c:\temp\snortdemo. Navigate to this directory.
+7. Clone the repo to your temporary directory using the git clone command.  You woudl not see an empty repo called **SnortConfigRepo** in your temporary directory.
 ```bash
-cat /var/log/cloud-init-output.log | more
-```
-7. **Whoohoo!**  You have not access you new Linux instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
+c:\\dev\\snort-demo\\SnortConfigRepo>git clone https://git-codecommit.us-east-1.amazonaws.com/v1/repos/SnortConfigRepo
 
-## E. Validate Snort configuration
+```
+
+8. Download the zip file [SnortDemo-CodeDeploy.zip](https://github.com/aws-samples/aws-reinvent-2019-builders-session-opn215/blob/mainline/artifacts/SnortDemo-CodeDeploy.zip "SnortDemo-CodeDeploy.zip") and put it in the directory **c:\temp\snortdemo\SnortConfigRepo**.
+9. Extract the file to this directory and verify that you can see the following contents
+```bash
+agent.json                    
+snortd                       
+snort.conf                  
+snort                         
+appspec.yml                   
+local.rules               
+community.rules             
+black_list.rules              
+white_list.rules             
+scripts/after_install.sh                  
+scripts/before_install.sh        
+scripts/start_server.sh          
+scripts/stop_server.sh          
+```
+
+10. Delete the zip file and then push the updated repo to the CodeCommit repository.
+```bash
+c:\\dev\snort-demo\\SnortConfigRepo>git add .
+c:\\dev\snort-demo\\SnortConfigRepo>git commit -m "Intital load."
+c:\\dev\snort-demo\\SnortConfigRepo>git push
+```
+
+11. In the AWS Console, navigate to the SnortConfigRepo CodeCommit repo to check the files are loaded.
+
+## E. Deploy the Snort Configuration
+---
+In this section we will use [CodeDeploy](https://aws.amazon.com/codedeploy/ "CodeDeploy") to update the Snort and Kinesis agent copnfiguration using an artifact we store in [CodeCommit](https://aws.amazon.com/codecommit/ "CodeCommit"). This approach allows you to push configuration changes to all of the Snort sensors in your network based on the tag SSMType:SnortSensor.  The instructions here are based on this [Tutorial](https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-simple-codecommit.html "Tutorial").
+---
+![Systems manager](images/systems-manager.jpg "Systems Manager")
+
+1. In the AWS Console, open the **CodeDeploy** console.
+2. Select the **Pipeline . CodePipeline** item on the left hand side.
+3. Select **Pipelines** and then select the **SnortConfigPipeline**.  It will show failed on the last run but we will fix that now.
+4. Click on the **Release Change** button to restart the pipleine.
+5. The Pipeline will now deploy the snort configuration to the snort sensor instances.
+
+## E. Validate the Snort Configuration
 ---
 Before we give our Snort server a clean bill of health we need to check that configuration is working ok.  Use the Session Manager to open a shell on the remote host and run the snort configuration check.
 
