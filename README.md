@@ -296,6 +296,16 @@ alert tcp any any -> any 22 (msg:"SSH packet detected"; sid:10000006; rev:001;)
 12. The Pipeline will now deploy the snort configuration to the snort sensor instances.
 13. **Whoohoo!**  You have updated the rules on all your Snort Sensors!  Check the logs to see the new activity on the WebServer.
 
+---
+### POINT TO NOTE
+You can try out generating a few alerts on your web server by doing the following things which should trigger alerts:
+1. Get the url for your webServer by navigating in the AWS Console to **EC2**, **Running Instances**, select the instances named **WebServer**.
+2. Locate the Public IPv4 DNS section and click on **open address**.  You will see the web site for the server.  This should generate an **HTTP packet detected** on your Snort sensor as per the local.rules file.
+3. Open a command prompt on your workstation and try pinging the Public IP Address of your server.  This should generate a **PROTOCOL-ICMP PING Windows** on your Snort sensor as per the community.rules file.
+4. Try starting an ssh session to your server.  This should generate a **SSH packet detected** on your Snort sensor as per the local.rules file.
+
+---
+
 ## H. Query Snort data with Athena
 ---
 We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
