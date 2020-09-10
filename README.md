@@ -121,6 +121,22 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review SnortStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
+---
+### Points to note:
+If you examine the SNort Sensor you will note that it has 3 network adapters configured
+
+eth0 - default adapter for the EC2 instance running Snort
+eth1 - target adapter for the Traffic Mirror service used to decapsulate the VXLAN traffic on port 4789
+vxlan0 - used by Snort to examine the decapsulated packets
+
+The vxlan01 adapter is not enabl;ed by default so the EC2 instance will not survive a reboot. Should you need to reboot the instance you will need to run thew following commands to re-enable the vxlan0 adapter.
+```bash
+sudo ip link add vxlan0 type vxlan id 1111 group 239.1.1.1 dev eth1 dstport 4789
+sudo ip link set vxlan0 up
+```
+
+---
+
 ## D. Import the codedeploy artifacts to CodeCommit
 ---
 In this section we will use [Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
