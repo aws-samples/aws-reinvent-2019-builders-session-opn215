@@ -12,7 +12,7 @@ Resources:
     Properties:
       ParentImage: arn:aws:imagebuilder:us-east-1:aws:image/amazon-linux-2-x86/2020.4.7
       Name: SnortImageRecipe
-      Version: "1.0.1"
+      Version: "1.0.0"
       Description: "Snort sensor image recipe."
       Components: 
         - ComponentArn: !Ref EPELRepoComponent
@@ -257,7 +257,7 @@ Resources:
     Properties:
       Name: KinesisComponent
       Platform: Linux
-      Version: "1.0.1"
+      Version: "1.0.0"
       Description: "Installs the Kinesis client."
       ChangeDescription: "Initial"
       Data: |
