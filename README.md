@@ -232,6 +232,13 @@ You may find that snort won't start.  To check if this is because the configurat
 ```bash
 sudo snort -T -c /etc/snort/snort.conf
 ```
+#### Is snort actually doing anything?
+You may wonder if anything is actually happening.  You can tail the logs to validate the logs to make sure Kinesis and Snort are workign aok.
+```bash
+tail -f /var/log/snort/alerts.csv
+tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
+```
+
 ---
 ### POINT TO NOTE
 The local.rules file that is used for this demo is VERY verbose.  Basically, its recording every network packet the Snort Sensor sees arriving on the host.  Thats a lot of packets!  To make this more sensible try forking the repo and creating your own local.rules file.  For the purposes of the demo its good to see the scalability of Snort, Kinesis, Athena and Quicksight in action but that local.rules files does not represent what you would normally do in a production environment.
