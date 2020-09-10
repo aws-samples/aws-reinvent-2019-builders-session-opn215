@@ -196,11 +196,7 @@ In this section we will use [CodeDeploy](https://aws.amazon.com/codedeploy/ "Cod
 4. Click on the **Release Change** button to restart the pipleine.
 5. The Pipeline will now deploy the snort configuration to the snort sensor instances.
 
-## F. Validate the Snort Configuration
----
-Before we give our Snort server a clean bill of health we need to check that configuration is working ok.  Use the Session Manager to open a shell on the remote host and run the snort configuration check.
-
----
+## F. Validate Snort and Kinesis are running
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
@@ -208,20 +204,20 @@ Before we give our Snort server a clean bill of health we need to check that con
 5. Click on the **start session** button.
 6. Navigate to the ssm-user home directory and run the following commands
 ```bash
-sudo snort -T -c /etc/snort/snort.conf
+sh-4.2$ ps -ef | grep snort
+snort    23506     1  0 10:02 ?        00:00:00 /usr/sbin/snort -D -i vxlan0 -u snort -g snort -c /etc/snort/snort.conf -l /var/log/snort -m 002
+ssm-user 24754 24556  0 10:15 pts/0    00:00:00 grep snort
+sh-4.2$ ps -ef | grep kinesis
+root     23382     1  0 10:02 ?        00:00:00 runuser aws-kinesis-agent-user -s /bin/sh -c /usr/bin/start-aws-kinesis-agent
+aws-kin+ 23384 23382  1 10:02 ?        00:00:11 /usr/java/jdk1.8.0_231-amd64/bin/java -server -Xms32m -Xmx512m -Dlog4j.configurationFile=file:///etc/aws-kinesis/log4j.xml -XX:OnOutOfMemoryError="/bin/kill -9 %p" -cp /usr/share/aws-kinesis-agent/lib:/usr/share/aws-kinesis-agent/lib/AWSKinesisStreamingDataAgent-1.1.jar:/usr/share/aws-kinesis-agent/lib/aws-java-sdk-cloudwatch-1.11.700.jar:/usr/share/aws-kinesis-agent/lib/aws-java-sdk-core-1.11.700.jar:/usr/share/aws-kinesis-agent/lib/aws-java-sdk-ec2-1.11.700.jar:/usr/share/aws-kinesis-agent/lib/aws-java-sdk-kinesis-1.11.700.jar:/usr/share/aws-kinesis-agent/lib/aws-java-sdk-sts-1.11.700.jar:/usr/share/aws-kinesis-agent/lib/commons-cli-1.2.jar:/usr/share/aws-kinesis-agent/lib/commons-codec-1.6.jar:/usr/share/aws-kinesis-agent/lib/commons-lang3-3.4.jar:/usr/share/aws-kinesis-agent/lib/commons-logging-adapters-1.1.jar:/usr/share/aws-kinesis-agent/lib/commons-logging-api-1.1.jar:/usr/share/aws-kinesis-agent/lib/httpclient-4.5.1.jar:/usr/share/aws-kinesis-agent/lib/httpclient-cache-4.5.1.jar:/usr/share/aws-kinesis-agent/lib/httpcore-4.4.3.jar:/usr/share/aws-kinesis-agent/lib/httpcore-ab-4.4.3.jar:/usr/share/aws-kinesis-agent/lib/httpcore-nio-4.4.3.jar:/usr/share/aws-kinesis-agent/lib/httpmime-4.5.1.jar:/usr/share/aws-kinesis-agent/lib/jackson-annotations-2.10.3.jar:/usr/share/aws-kinesis-agent/lib/jackson-core-2.10.3.jar:/usr/share/aws-kinesis-agent/lib/jackson-databind-2.10.3.jar:/usr/share/aws-kinesis-agent/lib/jackson-dataformat-cbor-2.10.3.jar:/usr/share/aws-kinesis-agent/lib/jackson-dataformat-xml-2.10.3.jar:/usr/share/aws-kinesis-agent/lib/jcommander-1.48.jar:/usr/share/aws-kinesis-agent/lib/joda-time-2.8.2.jar:/usr/share/aws-kinesis-agent/lib/jsr305-3.0.1.jar:/usr/share/aws-kinesis-agent/lib/slf4j-api-1.7.12.jar:/usr/share/aws-kinesis-agent/lib/sqlite-jdbc-3.20.1.jar:/usr/share/aws-kinesis-agent/lib/guava-28.2-jre.jar:/usr/share/aws-kinesis-agent/lib/log4j-1.2-api-2.13.2.jar:/usr/share/aws-kinesis-agent/lib/log4j-api-2.13.2.jar:/usr/share/aws-kinesis-agent/lib/log4j-core-2.13.2.jar:/usr/share/aws-kinesis-agent/lib/log4j-slf4j-impl-2.13.2.jar:/usr/share/java/*: com.amazon.kinesis.streaming.agent.Agent
+ssm-user 24899 24556  0 10:17 pts/0    00:00:00 grep kinesis
+```
+8. If anything is not running then you can start them easily using the following commands:
+```bash
+sudo service snortd start
+sudo service aws-kinesis-agent start
 ```
 
-## G. Validate Snort and Kinesis are running
-1. In the AWS Console, open the **System Manager** console.
-2. Select **Session Manager** in the menu in the left hand window.
-3. Click on the **Start Session** button in the right hand window.
-4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
-5. Click on the **start session** button.
-6. Navigate to the ssm-user home directory and run the following commands
-```bash
-tail -f /var/log/snort/alerts.csv
-tail -f /var/log/aws-kinesis-agent/aws-kinesis-agent.log
-```
 7. **Whoohoo!**  You now have a Snort sensor streaming alert and packet data into the Cloud!  This also works equally well for Snort senspors deployed on premsis that are managed.
 ---
 ### Common issues
@@ -231,13 +227,18 @@ ResourceNotFoundException then you need to update the agent.json file with the u
 ```bash
 com.amazon.kinesis.streaming.agent.tailing.AsyncPublisher [ERROR] AsyncPublisher[fh:aws-snort-demo-SnortPacketStream:/var/log/snort/tcpdump.log*]:RecordBuffer(id=20,records=500,bytes=49831) Retriable send error (com.amazonaws.services.kinesisfirehose.model.ResourceNotFoundException: Firehose aws-snort-demo-SnortPacketStream not found under account 566240252914. (Service: AmazonKinesisFirehose; Status Code: 400; Error Code: ResourceNotFoundException; Request ID: c45880cc-174a-be21-9200-59038190176e)). Will retry.
 ```
+#### Snort won't start
+You may find that snort won't start.  To check if this is because the configuration is invalid you can check if the configuration is broken using the following command:
+```bash
+sudo snort -T -c /etc/snort/snort.conf
+```
 ---
 ### POINT TO NOTE
 The local.rules file that is used for this demo is VERY verbose.  Basically, its recording every network packet the Snort Sensor sees arriving on the host.  Thats a lot of packets!  To make this more sensible try forking the repo and creating your own local.rules file.  For the purposes of the demo its good to see the scalability of Snort, Kinesis, Athena and Quicksight in action but that local.rules files does not represent what you would normally do in a production environment.
 
 ---
 
-## H. Query Snort data with Athena
+## G. Query Snort data with Athena
 ---
 We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
 
