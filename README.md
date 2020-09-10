@@ -369,33 +369,6 @@ Quicksight may not have all the permissions required to access the Snort data.  
 
 ---
 
-
-
-## J. Create a Security operations centre
-This step creates a SOC with a Kali Linux instance that you can use for penetration your environment, testing SNORT rules and scripting validation of your environment.  It used the Kali linux image so it requires an EC2 Keypair to get started, although you can integrate the Instance with Systems Manager for easy access as well.
-1. Setup your workstation with an AWS-CLI profile that allows you to run commands against the account and region where you are builiding your Snort environment.
-2. Create an EC2 keypair to use with the Kali instance. the example command below creates a key pair named *soc-kp* and saves the private key as a pem file in the c:\temp\ directory.
-```bash
- aws ec2 create-key-pair --key-name soc-kp --query 'KeyMaterial' --output text > "c:\temp\soc.pem"
-```
-3. Log on to the AWS console and open CloudFormation.  Make sure that your current region is **us-east-1**, North Virginia.
-4. Select the **Stacks** menu item in the side window.  Click on the **Create Stack** button.
-5. In the **Specify Template** page, navigate to the **specify a template** section and select the option to **upload a template file**.
-6. Select the **choose file** button, navigate to te directory where you downloaded the package and select the **4-soc-stack.yaml** file, then click on the **open** button.  Click on the **next** button to continue.
-7. In the **Stack Details** page, set the stack name to **SOCStack**.  Look through the template parameters for your information, then click on the **next** button to continue.
-8. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
-9. In the **review ImageBuilderStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
-10. Once the stack is sucessfully created, navigate to the EC2 service in the AWS Console.  Navigate tot he Instances item int he left hand pane.  Locate the KaliSOCInstance in the right hand pane and click on the radion button to select it.  Make a note of the public DNS name and IP address.
-11.  Using your ssh client sccess the server as ec2-user using the private key you created in step 2.
-12.  Update the Kali instance by running the distribtuion update commands.  Warning, this will take a while and it is not silent so you will need to keep an eye on it to make sure it doesn't get stuck somewhere.
-```bash
-sudo su - 
-apt update
-apt upgrade
-apt dist-upgrade
-```
-
-
 ## Y. What next?
 This lab is a basis for further exploration on the subject of how to get insights from your NIDS systems.  It highlighted the strenghts of using automation tools for deployign and managing Snort Sensors.  We explored how to run simple SQL querieis and generate visual reports.  Moving forward you can explore further automation ideas:
 * Implement a CI/CD pipeline for Snort configuration management using CodePipeline
