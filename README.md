@@ -196,7 +196,7 @@ In this section we will use [CodeDeploy](https://aws.amazon.com/codedeploy/ "Cod
 4. Click on the **Release Change** button to restart the pipleine.
 5. The Pipeline will now deploy the snort configuration to the snort sensor instances.
 
-## E. Validate the Snort Configuration
+## F. Validate the Snort Configuration
 ---
 Before we give our Snort server a clean bill of health we need to check that configuration is working ok.  Use the Session Manager to open a shell on the remote host and run the snort configuration check.
 
@@ -211,7 +211,7 @@ Before we give our Snort server a clean bill of health we need to check that con
 sudo snort -T -c /etc/snort/snort.conf
 ```
 
-## F. Validate Snort and Kinesis are running
+## G. Validate Snort and Kinesis are running
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
@@ -237,7 +237,7 @@ The local.rules file that is used for this demo is VERY verbose.  Basically, its
 
 ---
 
-## G. Query Snort data with Athena
+## H. Query Snort data with Athena
 ---
 We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
 
