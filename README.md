@@ -59,6 +59,30 @@ In this section we will use [CloudFormation](https://docs.aws.amazon.com/AWSClou
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review ImageBuilderStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
+---
+### Points to note:
+What does this ImageBuilder configuration do?  Its purpose is to generate a Golden Image of a Snort Sensor.  
+
+First, you define the The Operating System you want to build, and for this lab we use the Amazon linux 2 image.  
+
+Next, you define what software components you want to install on the base image.  For this lab we create components for:
+* Code Deploy Agent
+* DAQ
+* EPEL Repository
+* Git (not longer requires as the lab uses CodeDeploy instead)
+* Oracle JDK
+* Kinesis Agent
+* Snort
+
+Next, you define a recipie whic allows you to mix and match the components and base image to meet your requirements.
+
+Lastly, you define a pipeline which actually builds the AMI and stores it in the private AMI store.
+
+You can then use this new AMI to create instances.
+
+---
+
+
 ## B. Run the EC2 Image Builder Pipeline
 In this section we will run the EC2 Image Builder Pipline to create an AMI that includes the Snort and Kinesis packages along with all their dependancies.
 
@@ -116,7 +140,7 @@ cat /var/log/cloud-init-output.log | more
 ```
 7. **Whoohoo!**  You have not access you new Linux instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
 
-## E. Download tools package
+## D. Review the Snort Logs
 ---
 In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager [Run Command](https://docs.aws.amazon.com/systems-manager/latest/userguide/execute-remote-commands.html "Run Command") feature which allows you to apply updates across multiple instances based on tags or instance ids.
 
