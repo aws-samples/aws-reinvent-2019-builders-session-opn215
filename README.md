@@ -105,7 +105,7 @@ This AMI can be used in both AWS and on-premisis environments.  To run the image
 
 ---
 
-## B. Deploy the Snort stack
+## C. Deploy the Snort stack
 In this section we will use CloudFormation to deploy the intial stack.  This includes all the infrastructure needed to get the basic environment working.  The diagram below represents the stack in is current form.
 
 ---
@@ -121,7 +121,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review SnortStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
-## C. Import the codedeploy artifacts to CodeCommit
+## D. Import the codedeploy artifacts to CodeCommit
 ---
 In this section we will use [Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
 
@@ -140,83 +140,7 @@ cat /var/log/cloud-init-output.log | more
 ```
 7. **Whoohoo!**  You have not access you new Linux instance without a bastion host or ssh key using an IAM user in the console!  To see more things you can do with session manager in terms of delegating rights and roles check out the documentation [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager").
 
-## D. Review the Snort Logs
----
-In this section we will copy the artifacts we need to complete the installation to the snort server.  We use github for the example, but you could also use CodeCommit or your own private pipeline.  We execute these commands using the Systems Manager [Run Command](https://docs.aws.amazon.com/systems-manager/latest/userguide/execute-remote-commands.html "Run Command") feature which allows you to apply updates across multiple instances based on tags or instance ids.
-
----
-![Run Command](images/run-command.png "Run Command")
-
----
-1. In the AWS Console, open the **System Manager** console.
-2. Select **Run Command** in the menu in the left hand window.
-3. Click on the **Run a command** button in the right hand window.
-4. Type **AWS-RunShellScript** into the search bar and press the **return** key. 
-5. Select the radio button for the **AWS-RunShellScript** document.
-6. Scroll down until you see the **Command Parameters** field.  Copy and past the following commands into that field.
-```bash
-git clone https://github.com/aws-samples/aws-reinvent-2019-builders-session-opn215
-```
-7. In the working directory field, type in **/home/ssm-user**.
-8. Scroll down to the **Targets** section.
-9. Select the radio button for **Specify instance tags**.
-10. Type the following values into the feilds for the tags and then click on the **Add** button.
-
-| Tag Key | Value |
-| --- | --- |
-| SSMType | SnortSensor |
-
-11. Scroll down to the **Output options** section.  Ensure that the **Enable writing to S3 bucket** tickbox is ticked and the **Choose a bucket name from the list** radio button is selected. 
-12. Click on the drop down list and select the bucket beginning with the name **SnortStack-ssmloggingbucket-*uniqueid***.  
-13. Click on the **run** button to execute the command.
-14. You will see the status page for the command execution.  Click on the refresh button a few times until the **sucess** message appears.
-15. In the **targets and outputs** section you can see which instances the command ran on. Select an instance by clicking on the link in the **Instance ID** column.   
-16. You can see the partial command output in **Step 1 - Output** feild.  To see the full output click on the **Amazon S3** button.  The contents of this bucket are organised by instance ID, and the command that was run.
-17. Validate the commands ran according to plan by examining the stderr and stdout.  This is a simple example but to get better information use a more comprehensive shell script with proper debug and exception handling.  You can also check the package is in the ssm-users home directory by accessing the instance using **Session Manager**.
-18.  **Whoohoo!**  You just ran a set of commands across some instance based on their tag name.  By using this technique you can run commands to update all your Snort sensors in batch mode, including the ones in your on-premisis network.
-
-## F. Configure Snort
----
-In this section we use Systems manager [Automation Document](https://docs.aws.amazon.com/systems-manager/latest/userguide/automation-documents.html "Automation Document") to update the local configuration of Snort on the sensor.
-The automation copies the configuration files from our central repository whene the files are under version control.  It then deploys the files on the local host.  this is a great way to allow you to have controlled change and automated deplyment for your Snort configuration and rules.
-
----
-![Automation](images/automation.png "Automation")
-
----
-1. In the AWS Console, open the **System Manager** console.
-2. Select **Documents** in the menu in the left hand window.
-3. Click on the **Owned By Me** tab in the right hand window.
-4. Click on the document with the name beginning with **SnortStack-SnortConfigure-*uniqueid***.
-5. Click on the **Execute Automation** button.
-6. In the Execute automatyion document page, scroll down to the **Input Parameters** section and click on the slider button **show interactive instance picker**.  Select the instance names **SnortSensor**.
-7. Click on the **execute** button.
-8. You will now see the execution detail page.  This shows you the execution ID for each step.  Click on the link for one of these id's so that you can view the output of the shell script command.
-9. **Whoohoo!** you just updated your Snort configuration using your repo as a source control!  This make the task of rolling out rules updates must simpler.  You can now trigger rules refreshes using automation from events. For example, if you use CodePipeline to stoere your Snort rules, you can now trigger a rule refresh on all your sensors as part of a deployment pipleine.
-
-## G. Install Kinesis agent
----
-In this section we will use [Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") install the Kinesis agent.  Kinesis streams are a tool that allows lots of independant devices or services to send messages to a central aggregation point where we can store them for analyticis purposes.  In our case we are sending all the Snort alerts and packet captures to Kinesis Firehose, which in turn stores the data in S3 buckets for later use.
-
----
-![Kinesis Data Firehose](images/KinesisFirehose.png "Kinesis Data Firehose")
-
----
-1. In the AWS Console, open the **System Manager** console.
-2. Select **Session Manager** in the menu in the left hand window.
-3. Click on the **Start Session** button in the right hand window.
-4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
-5. Click on the **start session** button.
-6. Execute the following steps to set up the Kinesis agent.  Execute command individually, do not copy and paste all the commands at once.
-```bash
-sudo yum install –y https://s3.amazonaws.com/streaming-data-agent/aws-kinesis-agent-latest.amzn1.noarch.rpm
-sudo chkconfig aws-kinesis-agent on
-sudo cp /home/ssm-user/aws-reinvent-2019-builders-session-opn215/etc/aws-kinesis/agent.json /etc/aws-kinesis/agent.json
-
-```
-7. **Whoohoo!**  You now have your Snort sensor ready to send data to AWS.  This work really well when you have a large number of Snort sensors, both on-premisis or in the Cloud and you need a scalable way of storing all the alert information and packets for analytics.
-
-## H. Validate Snort configuration
+## E. Validate Snort configuration
 ---
 Before we give our Snort server a clean bill of health we need to check that configuration is working ok.  Use the Session Manager to open a shell on the remote host and run the snort configuration check.
 
@@ -231,19 +155,7 @@ Before we give our Snort server a clean bill of health we need to check that con
 sudo snort -T -c /etc/snort/snort.conf
 ```
 
-## I. Start Snort and Kinesis agents
-1. In the AWS Console, open the *System Manager* console.
-2. Select **Session Manager** in the menu in the left hand window.
-3. Click on the **Start Session** button in the right hand window.
-4. Click on the **radio button** for the **SnortSensor** EC2 instance. 
-5. Click on the **start session** button.
-6. Navigate to the ssm-user home directory and run the following commands
-```bash
-sudo service aws-kinesis-agent start
-sudo service snortd start
-```
-
-## J. Validate Snort and Kinesis are running
+## F. Validate Snort and Kinesis are running
 1. In the AWS Console, open the **System Manager** console.
 2. Select **Session Manager** in the menu in the left hand window.
 3. Click on the **Start Session** button in the right hand window.
@@ -269,7 +181,7 @@ The local.rules file that is used for this demo is VERY verbose.  Basically, its
 
 ---
 
-## K. Query Snort data with Athena
+## G. Query Snort data with Athena
 ---
 We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
 
@@ -302,7 +214,7 @@ select * from snort_alerts limit 1000
 17. Save a copy of your query by clicking on the **Save as** button.  Name your query **last-1k-snort-alerts** and add a description.  Click on the **save** button to continue.  Click on the **Saved queries** tab to check your query is listed.
 17.  **Whoohoo!**  You can now perform adhoc queries on your Snort alert data using Athena!  Try out some different sample queries to see what you can discover about the network traffic hitting your server.
 
-## L. Visualise Snort data in Quicksight
+## H. Visualise Snort data in Quicksight
 ---
 As you can see, its easy to get up and runing with Athena for ad-hoc queries of our Snort data.  Next, we will set up some visualisations for our data using Quicksight.
 
@@ -332,7 +244,7 @@ Quicksight may not have all the permissions required to access the Snort data.  
 
 ---
 
-## M. Create a Security operations centre
+## I. Create a Security operations centre
 This step creates a SOC with a Kali Linux instance that you can use for penetration your environment, testing SNORT rules and scripting validation of your environment.  It used the Kali linux image so it requires an EC2 Keypair to get started, although you can integrate the Instance with Systems Manager for easy access as well.
 1. Setup your workstation with an AWS-CLI profile that allows you to run commands against the account and region where you are builiding your Snort environment.
 2. Create an EC2 keypair to use with the Kali instance. the example command below creates a key pair named *soc-kp* and saves the private key as a pem file in the c:\temp\ directory.
