@@ -17,21 +17,32 @@ Things you will explore include:
 ```
 .
 |-- README.md                         <-- This instructions file
-|-- cfn-template.yaml                 <-- Cloudformtation template for lab environment
-|-- scripts                           <-- Directory for linux build scripts
-|   |-- snort-sensor.sh               <-- Installation script for snort packages
-|   |-- traffic-generator.sh          <-- Instalation script for traffic generator
-|-- etc                               <-- Directory for linux init and conf scripts
-|   |-- aws-kinesis                   <-- Directory for aws-kinesis configuration
-|   |   |-- agent.json                <-- Kinesis firehose agent configuration file
-|   |-- rc.d                          <-- Directory for init scripts
-|   |   |-- init.d                    <-- Directory for init scripts
-|   |   |   |-- snortd                <-- Snort init script
-|   |-- snort                         <-- Directory for snort configuration
-|   |   |-- snort.conf                <-- Snort configuration file
-|   |-- sysconfig                     <-- Directory for init scripts
-|   |   |-- snort                     <-- Snort init script
+|-- 1-image-builder-pipeline.yaml     <-- Cloudformation stack for the Image Builder Pipeline
+|-- 2-snort-stack.yaml                <-- Cloudformtation stack for Snort sensor
+|   |-- artifacts                     <-- Directory for deployment artifacts
+|   |   |-- kinesis-install.sh        <-- Installation script for Kinesis using the 'expect' command
+|   |   |-- SnortDemo-CodeDeploy.zip  <-- Zip of the codedeploy directory to import into CodeCommit
+|-- codedeploy                        <-- Directory for CodeDeploy files
+|   |-- agent.json                    <-- Kinesis firehose agent configuration file
+|   |-- snortd                        <-- Snort init script
+|   |-- snort.conf                    <-- Snort configuration file
+|   |-- snort                         <-- Snort init script
+|   |-- appspec.yml                   <-- CodeDeploy configuration script
+|   |-- local.rules                   <-- Local rules for Snort
+|   |-- community.rules               <-- Community rules for Snort
+|   |-- black_list.rules              <-- Black List rules for Snort
+|   |-- white_list.rules              <-- White List rules for Snort
+|   |-- scripts                       <-- CodeDeploy scripts directory
+|   |   |-- after_install.sh          <-- CodeDeploy post-installation script
+|   |   |-- before_install.sh         <-- CodeDeploy pre-installation script
+|   |   |-- start_server.sh           <-- CodeDeploy start server script
+|   |   |-- stop_server.sh            <-- CodeDeploy stop server script
 ```
+
+## Prerequisites
+This section describes the pre-requisites you must have in order to sucessfully run this demo.
+1. An AWS Account and an IAM user with sufficient privilegses to run the CloudFormation scripts.
+2. A PC or Mac with Git installed and a Web Browser compatible with the AWS Console.
 
 ## A. Deploy the EC2 Image Pipeline stack
 In this section we will use [CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html "CloudFormation") to deploy [EC2 ImageBuilder](https://docs.aws.amazon.com/imagebuilder/latest/userguide/how-image-builder-works.html "EC2 ImageBuilder") Pipeline stack.  This includes all the components for a Snort Sensor recipe that ImageBuilder can run to produce an AMI.
@@ -70,7 +81,7 @@ This AMI can be used in both AWS and on-premisis environments.  To run the image
 
 ---
 
-## C. Deploy the Snort stack
+## B. Deploy the Snort stack
 In this section we will use CloudFormation to deploy the intial stack.  This includes all the infrastructure needed to get the basic environment working.  The diagram below represents the stack in is current form.
 
 ---
@@ -86,7 +97,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 6. In the **configure stack options** page, accept the defaults and click on the *next* buttont to continue.  
 7. In the **review SnortStack** page, scroll to the bottom of the page and make sure that the tickbox **I acknowledge that AWS CloudFormation might create IAM resources with custom names** is ticked.  Click on the **create stack** button continue.
 
-## D. Open a shell session to the Snort Sensor
+## C. Import the codedeploy artifacts to CodeCommit
 ---
 In this section we will use [Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html "Session Manager") to access the linux hosts.  This uses ephemeral ssh keys to establish a session with eh host and you can run interactive commands.  Its a great way of avoinding the pain of managing ssh keys and makes also makes it unecessary to have a bastion host or exposing your ssh ports to the internet.
 
