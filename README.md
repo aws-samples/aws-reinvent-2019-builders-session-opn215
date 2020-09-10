@@ -125,9 +125,9 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 ### Points to note:
 If you examine the Snort Sensor you will note that it has 3 network adapters configured.
 
-eth0 - default adapter for the EC2 instance running Snort
-eth1 - target adapter for the Traffic Mirror service used to decapsulate the VXLAN traffic on port 4789
-vxlan0 - used by Snort to examine the decapsulated packets
+* eth0 - default adapter for the EC2 instance running Snort
+* eth1 - target adapter for the Traffic Mirror service used to decapsulate the VXLAN traffic on port 4789
+* vxlan0 - used by Snort to examine the decapsulated packets
 
 The vxlan01 adapter is not enabl;ed by default so the EC2 instance will not survive a reboot. Should you need to reboot the instance you will need to run thew following commands to re-enable the vxlan0 adapter.
 ```bash
