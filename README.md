@@ -195,6 +195,19 @@ In this section we will use [CodeDeploy](https://aws.amazon.com/codedeploy/ "Cod
 3. Select **Pipelines** and then select the **SnortConfigPipeline**.  It will show failed on the last run but we will fix that now.
 4. Click on the **Release Change** button to restart the pipleine.
 5. The Pipeline will now deploy the snort configuration to the snort sensor instances.
+---
+### Common issues
+#### My pipline didn't run
+Its likely that if you have an issue with your pipeline it will be on the CodeDeploy agent side.  You can review the log files of what was happening on your host by examining the CodeDeploy Agent log:
+```bash
+tail -f /opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log
+```
+
+---
+### POINT TO NOTE
+The rules files and other configuration items are actually deployed by the CodeDeploy agent.  This is deployed as part of the ImageBuilder process.  As you can see its a very fast process.  Once the Pipeline is triggered, the the deployment happens in seconds.
+
+---
 
 ## F. Validate Snort and Kinesis are running
 1. In the AWS Console, open the **System Manager** console.
@@ -245,7 +258,45 @@ The local.rules file that is used for this demo is VERY verbose.  Basically, its
 
 ---
 
-## G. Query Snort data with Athena
+## G. Refine the Snort Rules
+---
+Now that we have proved we can capture packets and logs its time to refine our Snort rules to be a bit less verbose.  We will updaste our Snort rules in CodeCommit and rerun our Pipeline to push the new rules to the Snort sensors.
+
+---
+
+1. In the AWS Console, open the **CodeDeploy** console.
+2. Select **Source . CodeCommit** in the menu in the left hand window and then click on **Repositories**.
+3. Click on the **Radio Button** button next to **SnortConfigRepo** and then click on the **View repository** button.
+4. Select the **local.rules** file by clicking on the file name.
+5. The contents of the file will now be displayed.  As you can see, the sensor is reporting all packets.
+```bash
+alert tcp any any -> any any (msg:"TCP packet detected"; sid:10000001; rev:001;)
+alert ip any any -> any any (msg:"IP packet detected"; sid:10000002; rev:001;)
+alert udp any any -> any any (msg:"UDP packet detected"; sid:10000003; rev:001;)
+alert tcp any any -> any 80 (msg:"HTTP packet detected"; sid:10000004; rev:001;)
+alert tcp any any -> any 443 (msg:"HTTPS packet detected"; sid:10000005; rev:001;)
+alert tcp any any -> any 22 (msg:"SSH packet detected"; sid:10000006; rev:001;)
+
+```
+6. Click on the **edit** button to open the file in write mode.  Comment out the top three rules by inserting a # as shown below:
+```bash
+#alert tcp any any -> any any (msg:"TCP packet detected"; sid:10000001; rev:001;)
+#alert ip any any -> any any (msg:"IP packet detected"; sid:10000002; rev:001;)
+#alert udp any any -> any any (msg:"UDP packet detected"; sid:10000003; rev:001;)
+alert tcp any any -> any 80 (msg:"HTTP packet detected"; sid:10000004; rev:001;)
+alert tcp any any -> any 443 (msg:"HTTPS packet detected"; sid:10000005; rev:001;)
+alert tcp any any -> any 22 (msg:"SSH packet detected"; sid:10000006; rev:001;)
+
+```
+7. Complete the **Author Name**, **Author Email** and **Commit message** fileds to give an explaination for this change, then click on the **Commit Changes** button.
+8. In the AWS Console, open the **CodeDeploy** console.
+9. Select the **Pipeline . CodePipeline** item on the left hand side.
+10. Select **Pipelines** and then select the **SnortConfigPipeline**.
+11. Click on the **Release Change** button to restart the pipleine.
+12. The Pipeline will now deploy the snort configuration to the snort sensor instances.
+13. **Whoohoo!**  You have updated the rules on all your Snort Sensors!  Check the logs to see the new activity on the WebServer.
+
+## H. Query Snort data with Athena
 ---
 We now have a large volume of Snort alert data and packet data arriving in our S3 buckets via Kinesis Firehose.  Its time to see how we can start runnign analytics on AWS to get insights from all that data.  First, we are going to set up Athena in this step so that we can run SQL queries across our log data and find out interesting things.
 
@@ -278,7 +329,7 @@ select * from snort_alerts limit 1000
 17. Save a copy of your query by clicking on the **Save as** button.  Name your query **last-1k-snort-alerts** and add a description.  Click on the **save** button to continue.  Click on the **Saved queries** tab to check your query is listed.
 17.  **Whoohoo!**  You can now perform adhoc queries on your Snort alert data using Athena!  Try out some different sample queries to see what you can discover about the network traffic hitting your server.
 
-## H. Visualise Snort data in Quicksight
+## I. Visualise Snort data in Quicksight
 ---
 As you can see, its easy to get up and runing with Athena for ad-hoc queries of our Snort data.  Next, we will set up some visualisations for our data using Quicksight.
 
@@ -308,7 +359,9 @@ Quicksight may not have all the permissions required to access the Snort data.  
 
 ---
 
-## I. Create a Security operations centre
+
+
+## J. Create a Security operations centre
 This step creates a SOC with a Kali Linux instance that you can use for penetration your environment, testing SNORT rules and scripting validation of your environment.  It used the Kali linux image so it requires an EC2 Keypair to get started, although you can integrate the Instance with Systems Manager for easy access as well.
 1. Setup your workstation with an AWS-CLI profile that allows you to run commands against the account and region where you are builiding your Snort environment.
 2. Create an EC2 keypair to use with the Kali instance. the example command below creates a key pair named *soc-kp* and saves the private key as a pem file in the c:\temp\ directory.
