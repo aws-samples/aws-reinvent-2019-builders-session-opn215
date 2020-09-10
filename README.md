@@ -123,7 +123,7 @@ In this section we will use CloudFormation to deploy the intial stack.  This inc
 
 ---
 ### Points to note:
-If you examine the SNort Sensor you will note that it has 3 network adapters configured
+If you examine the Snort Sensor you will note that it has 3 network adapters configured.
 
 eth0 - default adapter for the EC2 instance running Snort
 eth1 - target adapter for the Traffic Mirror service used to decapsulate the VXLAN traffic on port 4789
