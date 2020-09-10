@@ -139,8 +139,8 @@ sudo ip link set vxlan0 up
 ---
 
 ## D. Import the codedeploy artifacts to CodeCommit
----
 In this section we will use [CodeCommit](https://aws.amazon.com/codecommit/ "CodeCommit") to store the Snort configuration rules we need to scan network traffic.  This approach allows you to version control your Snort configuration and enables automated deployment of the rules.  The instructions here are based on this [Tutorial](https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-simple-codecommit.html "Tutorial").
+
 ---
 ![Systems manager](images/systems-manager.jpg "Systems Manager")
 
@@ -185,8 +185,8 @@ c:\\dev\snort-demo\\SnortConfigRepo>git push
 11. In the AWS Console, navigate to the SnortConfigRepo CodeCommit repo to check the files are loaded.
 
 ## E. Deploy the Snort Configuration
----
 In this section we will use [CodeDeploy](https://aws.amazon.com/codedeploy/ "CodeDeploy") to update the Snort and Kinesis agent copnfiguration using an artifact we store in [CodeCommit](https://aws.amazon.com/codecommit/ "CodeCommit"). This approach allows you to push configuration changes to all of the Snort sensors in your network based on the tag SSMType:SnortSensor.  The instructions here are based on this [Tutorial](https://docs.aws.amazon.com/codepipeline/latest/userguide/tutorials-simple-codecommit.html "Tutorial").
+
 ---
 ![Systems manager](images/systems-manager.jpg "Systems Manager")
 
