@@ -11,9 +11,9 @@ files:
     destination: /etc/snort/rules/
   - source: community.rules
     destination: /etc/snort/rules/
-  - source: black_list.rules
+  - source: deny_list.rules
     destination: /etc/snort/rules/
-  - source: white_list.rules
+  - source: allow_list.rules
     destination: /etc/snort/rules/
   - source: snort
     destination: /etc/sysconfig

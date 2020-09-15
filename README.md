@@ -30,8 +30,8 @@ Things you will explore include:
 |   |-- appspec.yml                   <-- CodeDeploy configuration script
 |   |-- local.rules                   <-- Local rules for Snort
 |   |-- community.rules               <-- Community rules for Snort
-|   |-- black_list.rules              <-- Black List rules for Snort
-|   |-- white_list.rules              <-- White List rules for Snort
+|   |-- deny_list.rules               <-- Deny List rules for Snort
+|   |-- allow_list.rules              <-- Allow List rules for Snort
 |   |-- scripts                       <-- CodeDeploy scripts directory
 |   |   |-- after_install.sh          <-- CodeDeploy post-installation script
 |   |   |-- before_install.sh         <-- CodeDeploy pre-installation script
